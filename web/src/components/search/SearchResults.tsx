@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Product, Marina } from "@/types";
 import { ProductTile } from "./ProductTile";
-import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Compass, MapPin } from "lucide-react";
 
