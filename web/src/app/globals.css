@@ -11,6 +11,7 @@
 
   --color-navy: #0A2540;
   --color-ocean: #00B4D8;
+  --color-lime: #C8D830;
   --color-success: #00C851;
   --color-warning: #F59E0B;
   --color-bg: #F8F9FA;
@@ -92,12 +93,45 @@
   --sidebar-ring: #00B4D8;
 }
 
+.dark {
+  --background: #0A1628;
+  --foreground: #E2E8F0;
+  --card: #132039;
+  --card-foreground: #E2E8F0;
+  --popover: #132039;
+  --popover-foreground: #E2E8F0;
+  --primary: #00B4D8;
+  --primary-foreground: #FFFFFF;
+  --secondary: #1E3A5F;
+  --secondary-foreground: #E2E8F0;
+  --muted: #1E3A5F;
+  --muted-foreground: #94A3B8;
+  --accent: #00B4D8;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --border: #1E3A5F;
+  --input: #1E3A5F;
+  --ring: #00B4D8;
+  --sidebar: #132039;
+  --sidebar-foreground: #E2E8F0;
+  --sidebar-primary: #00B4D8;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #1E3A5F;
+  --sidebar-accent-foreground: #E2E8F0;
+  --sidebar-border: #1E3A5F;
+  --sidebar-ring: #00B4D8;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased overflow-x-hidden;
+  }
+  /* Prevent iOS zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
   }
 }
 
@@ -108,5 +142,8 @@
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }

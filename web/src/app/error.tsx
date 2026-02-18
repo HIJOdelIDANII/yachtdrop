@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { LifeBuoy } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Error({
   error,
@@ -17,16 +18,22 @@ export default function Error({
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center">
-      <AlertTriangle className="h-12 w-12 text-red-400" />
-      <h2 className="text-lg font-semibold text-[var(--color-navy)]">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <LifeBuoy className="h-16 w-16 text-[var(--color-ocean)]" />
+      </motion.div>
+      <h2 className="text-xl font-bold text-foreground">
         Something went wrong
       </h2>
-      <p className="text-sm text-gray-500">
-        {error.message || "An unexpected error occurred."}
+      <p className="max-w-xs text-sm text-muted-foreground">
+        {error.message || "An unexpected error occurred. Please try again."}
       </p>
       <Button
         onClick={reset}
-        className="bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean)]/90"
+        className="min-h-[44px] bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean)]/90"
       >
         Try again
       </Button>
