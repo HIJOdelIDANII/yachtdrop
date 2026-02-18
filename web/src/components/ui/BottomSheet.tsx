@@ -32,11 +32,12 @@ export function BottomSheet({ open, onClose, children, title }: BottomSheetProps
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
             onClick={onClose}
           />
           {/* Sheet */}
           <motion.div
-            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl bg-white shadow-xl"
+            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl bg-card shadow-xl"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -50,14 +51,19 @@ export function BottomSheet({ open, onClose, children, title }: BottomSheetProps
           >
             {/* Drag handle — only this area triggers drag-to-dismiss */}
             <div
-              className="sticky top-0 z-10 flex cursor-grab justify-center bg-white pt-3 pb-2 active:cursor-grabbing"
+              className="sticky top-0 z-10 flex cursor-grab justify-center rounded-t-2xl bg-card pt-3 pb-2 active:cursor-grabbing"
               onPointerDown={(e) => dragControls.start(e)}
               style={{ touchAction: "none" }}
             >
-              <div className="h-1 w-10 rounded-full bg-gray-300" />
+              <motion.div
+                className="h-1 w-10 rounded-full bg-muted-foreground/30"
+                initial={{ opacity: 0.4 }}
+                animate={{ opacity: [0.4, 0.8, 0.4] }}
+                transition={{ duration: 1.5, repeat: 1, ease: "easeInOut" }}
+              />
             </div>
             {title && (
-              <h2 className="px-4 pb-2 text-lg font-semibold text-[var(--color-navy)]">
+              <h2 className="px-4 pb-2 text-lg font-semibold text-foreground">
                 {title}
               </h2>
             )}
