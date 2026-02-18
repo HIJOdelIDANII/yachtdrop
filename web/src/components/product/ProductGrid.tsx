@@ -63,13 +63,13 @@ export function ProductGrid({ categoryId }: ProductGridProps) {
 
   return (
     <>
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         <motion.div
           key={categoryId ?? "all"}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
+          transition={{ duration: 0.12 }}
           className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"
         >
           {products.map((product, i) => (

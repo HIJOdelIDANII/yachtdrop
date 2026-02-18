@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery, useMutation, keepPreviousData } from "@tanstack/react-query";
 import type { Product, Category, Order } from "@/types";
 import { useState, useEffect } from "react";
 
@@ -48,6 +48,7 @@ export function useInfiniteProducts(categoryId?: string | null) {
     },
     initialPageParam: 0,
     getNextPageParam: (last) => (last.meta.hasMore ? last.meta.page + 1 : undefined),
+    placeholderData: keepPreviousData,
   });
 }
 

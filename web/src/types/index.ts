@@ -44,6 +44,25 @@ export interface Marina {
   name: string;
   city: string;
   country: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface MarinaWithDistance extends Marina {
+  distance?: number; // km
+  eta?: string; // e.g. "12 min"
+}
+
+export type SuggestionType = "product" | "marina" | "category";
+
+export interface Suggestion {
+  id: string;
+  type: SuggestionType;
+  label: string;
+  subtitle?: string;
+  icon?: string;
+  distance?: number;
+  data: Product | Marina | Category;
 }
 
 export interface OrderItem {
