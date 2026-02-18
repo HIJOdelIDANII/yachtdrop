@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/utils/price";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function ProductSheet() {
   const activeSheet = useUIStore((s) => s.activeSheet);
@@ -45,7 +46,7 @@ export function ProductSheet() {
         <div className="space-y-4">
           {/* Product image */}
           {product.thumbnail && (
-            <div className="relative aspect-video overflow-hidden rounded-xl bg-gray-100">
+            <div className="relative aspect-video overflow-hidden rounded-xl bg-muted">
               <Image
                 src={product.thumbnail}
                 alt={product.name}
@@ -58,7 +59,7 @@ export function ProductSheet() {
 
           {/* Name & price */}
           <div>
-            <h2 className="text-xl font-bold text-[var(--color-navy)]">
+            <h2 className="text-xl font-bold text-foreground">
               {product.name}
             </h2>
             <div className="mt-1 flex items-center gap-2">
@@ -67,7 +68,7 @@ export function ProductSheet() {
               </span>
               {product.originalPrice &&
                 product.originalPrice > product.price && (
-                  <span className="text-sm text-gray-400 line-through">
+                  <span className="text-sm text-muted-foreground line-through">
                     {formatPrice(product.originalPrice)}
                   </span>
                 )}
@@ -97,30 +98,43 @@ export function ProductSheet() {
           {/* Description */}
           {product.description && (
             <div
-              className="prose prose-sm max-w-none text-gray-600"
+              className="prose prose-sm max-w-none text-muted-foreground"
               dangerouslySetInnerHTML={{ __html: product.description }}
             />
           )}
 
           {/* Quantity picker + Add to cart */}
           <div className="flex items-center gap-4 pt-2">
-            <div className="flex items-center gap-3 rounded-full border px-3 py-1">
-              <button
+            <div className="flex items-center gap-3 rounded-full border border-border px-3 py-1">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="text-[var(--color-navy)]"
+                className="flex h-8 w-8 items-center justify-center text-foreground"
               >
                 <Minus className="h-4 w-4" />
-              </button>
-              <span className="w-6 text-center font-medium">{quantity}</span>
-              <button
+              </motion.button>
+              <AnimatePresence mode="popLayout">
+                <motion.span
+                  key={quantity}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.15 }}
+                  className="w-6 text-center font-medium text-foreground"
+                >
+                  {quantity}
+                </motion.span>
+              </AnimatePresence>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setQuantity((q) => q + 1)}
-                className="text-[var(--color-navy)]"
+                className="flex h-8 w-8 items-center justify-center text-foreground"
               >
                 <Plus className="h-4 w-4" />
-              </button>
+              </motion.button>
             </div>
             <Button
-              className="flex-1 bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean)]/90"
+              className="min-h-[44px] flex-1 bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean)]/90"
               onClick={handleAdd}
               disabled={product.stockStatus === "OUT_OF_STOCK"}
             >

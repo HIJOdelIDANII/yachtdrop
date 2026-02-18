@@ -2,7 +2,7 @@
 
 import { useCategories } from "@/lib/hooks/useData";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils/cn";
+import { motion } from "framer-motion";
 
 interface CategoryTabsProps {
   selected: string | null;
@@ -15,40 +15,47 @@ export function CategoryTabs({ selected, onSelect }: CategoryTabsProps) {
   if (isLoading) {
     return (
       <div className="flex gap-2 overflow-x-auto px-4 py-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-8 w-20 shrink-0 rounded-full" />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-9 w-20 shrink-0 rounded-full" />
         ))}
       </div>
     );
   }
 
+  const allTabs = [
+    { id: null, name: "All" },
+    ...(categories?.map((c) => ({ id: c.id, name: c.name })) ?? []),
+  ];
+
   return (
     <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-3">
-      <button
-        onClick={() => onSelect(null)}
-        className={cn(
-          "shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-          !selected
-            ? "bg-[var(--color-ocean)] text-white"
-            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-        )}
-      >
-        All
-      </button>
-      {categories?.map((cat) => (
-        <button
-          key={cat.id}
-          onClick={() => onSelect(cat.id)}
-          className={cn(
-            "shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-            selected === cat.id
-              ? "bg-[var(--color-ocean)] text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          )}
-        >
-          {cat.name}
-        </button>
-      ))}
+      {allTabs.map((tab) => {
+        const isActive = selected === tab.id;
+        return (
+          <button
+            key={tab.id ?? "all"}
+            onClick={() => onSelect(tab.id)}
+            className="relative shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors min-h-[36px]"
+          >
+            {isActive && (
+              <motion.span
+                layoutId="category-tab-active"
+                className="absolute inset-0 rounded-full bg-[var(--color-ocean)]"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
+            )}
+            <span
+              className={`relative z-10 ${
+                isActive
+                  ? "text-white"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {tab.name}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
