@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
+
+const emptySubscribe = () => () => {};
 
 /**
  * Returns false on the server and during initial client render,
@@ -6,7 +8,9 @@ import { useState, useEffect } from "react";
  * Use to gate UI that depends on persisted client-only state (e.g. Zustand persist).
  */
 export function useHydrated() {
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => setHydrated(true), []);
-  return hydrated;
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 }

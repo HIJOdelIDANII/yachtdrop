@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Marina, MarinaWithDistance } from "@/types";
 import { haversineDistance, estimateETA } from "@/lib/hooks/useMarinas";
 import { Button } from "@/components/ui/button";
-import { Navigation, MapPin, X, Route, Locate, Anchor } from "lucide-react";
+import { MapPin, X, Route, Locate, Anchor } from "lucide-react";
 import dynamic from "next/dynamic";
 
 // ── Lazy-load Leaflet (no SSR) ───────────────────────────────────

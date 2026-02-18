@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "yachtdrop_recent_searches";
 const MAX_ITEMS = 8;
@@ -28,13 +28,17 @@ function persist(items: string[]) {
  * Hook to manage recent searches in localStorage.
  * GDPR-safe: only stores simple query strings, no PII.
  */
-export function useRecentSearches() {
-  const [searches, setSearches] = useState<string[]>([]);
+const emptySubscribe = () => () => {};
 
-  // Hydrate on mount
-  useEffect(() => {
-    setSearches(getStored());
-  }, []);
+export function useRecentSearches() {
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+  const [searches, setSearches] = useState<string[]>(() =>
+    isClient ? getStored() : []
+  );
 
   const add = useCallback((query: string) => {
     const trimmed = query.trim();

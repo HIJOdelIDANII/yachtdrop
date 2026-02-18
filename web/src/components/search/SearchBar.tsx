@@ -11,7 +11,7 @@ import { Autosuggest } from "./Autosuggest";
 import { RecentSearches } from "./RecentSearches";
 import { Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Suggestion, Product, Marina, Category } from "@/types";
+import type { Suggestion, Marina } from "@/types";
 
 interface SearchBarProps {
   onSearch?: (query: string) => void;
