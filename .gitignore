@@ -1,0 +1,36 @@
+# AI / IDE
+.github/
+.copilotignore
+.vscode/
+BUILDPLAN.md
+TODO.md
+*.prompt
+prompts/
+
+# Design (local reference only)
+design/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python / Scraper
+scraper/venv/
+scraper/__pycache__/
+scraper/*.pyc
+scraper/.env
+scraper/scrape.log
+scraper/nohup.out
+
+# Node
+node_modules/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env*.local
+
+BUILDPLAN.md
