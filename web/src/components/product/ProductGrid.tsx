@@ -1,6 +1,7 @@
 "use client";
 
 import { useInfiniteProducts } from "@/lib/hooks/useData";
+import { useFilteredProducts } from "@/lib/hooks/useFilteredProducts";
 import { ProductCard } from "./ProductCard";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { useEffect, useRef } from "react";
@@ -16,6 +17,9 @@ interface ProductGridProps {
 export function ProductGrid({ categoryId }: ProductGridProps) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteProducts(categoryId);
+
+  const products = data?.pages.flatMap((p) => p.data) ?? [];
+  const filteredProducts = useFilteredProducts(products);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -34,8 +38,6 @@ export function ProductGrid({ categoryId }: ProductGridProps) {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const products = data?.pages.flatMap((p) => p.data) ?? [];
-
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
@@ -46,12 +48,12 @@ export function ProductGrid({ categoryId }: ProductGridProps) {
     );
   }
 
-  if (products.length === 0) {
+  if (filteredProducts.length === 0) {
     return (
       <div className="flex flex-col items-center gap-4 py-20 text-muted-foreground">
         <PackageOpen className="h-16 w-16" />
         <p className="text-center text-sm font-medium">No products found</p>
-        <p className="text-center text-xs">Try selecting a different category</p>
+        <p className="text-center text-xs">Try adjusting your filters</p>
         <Link href="/browse">
           <Button variant="outline" size="sm">
             Browse All
@@ -72,7 +74,7 @@ export function ProductGrid({ categoryId }: ProductGridProps) {
           transition={{ duration: 0.12 }}
           className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"
         >
-          {products.map((product, i) => (
+          {filteredProducts.map((product, i) => (
             <ProductCard key={product.id} product={product} index={i} />
           ))}
           {isFetchingNextPage &&

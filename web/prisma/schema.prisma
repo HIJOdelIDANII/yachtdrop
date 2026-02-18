@@ -22,8 +22,9 @@ model Category {
 model Product {
   id          String   @id @default(uuid())
   externalId  String?  @unique @map("external_id")
+  sku         String?
   name        String
-  slug        String   @unique
+  slug        String
   description String?
   shortDesc   String?  @map("short_desc")
   price           Decimal  @db.Decimal(10, 2)
@@ -38,6 +39,7 @@ model Product {
   available   Boolean  @default(true)
   sourceUrl   String?  @map("source_url")
   scrapedAt   DateTime? @map("scraped_at")
+  lastSeenAt  DateTime? @map("last_seen_at")
   orderItems  OrderItem[]
 
   @@map("products")

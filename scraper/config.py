@@ -7,9 +7,10 @@ BASE_URL = "https://nautichandler.com"
 SITEMAP_URL = f"{BASE_URL}/1_en_0_sitemap.xml"
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-RATE_LIMIT_SECONDS = 2
-MAX_RETRIES = 2
+RATE_LIMIT_SECONDS = 3
+MAX_RETRIES = 3
 REQUEST_TIMEOUT = 30
+BACKOFF_FACTOR = 2
 
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "

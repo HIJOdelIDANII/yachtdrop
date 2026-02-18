@@ -29,8 +29,9 @@ def ensure_tables(conn):
             CREATE TABLE IF NOT EXISTS products (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 external_id TEXT UNIQUE,
+                sku TEXT,
                 name TEXT NOT NULL,
-                slug TEXT UNIQUE NOT NULL,
+                slug TEXT NOT NULL,
                 description TEXT,
                 short_desc TEXT,
                 price DECIMAL(10,2) NOT NULL,
@@ -43,7 +44,8 @@ def ensure_tables(conn):
                 thumbnail TEXT,
                 available BOOLEAN DEFAULT TRUE,
                 source_url TEXT,
-                scraped_at TIMESTAMPTZ DEFAULT NOW()
+                scraped_at TIMESTAMPTZ DEFAULT NOW(),
+                last_seen_at TIMESTAMPTZ DEFAULT NOW()
             )
         """)
         cur.execute("""
@@ -56,6 +58,16 @@ def ensure_tables(conn):
                 status TEXT DEFAULT 'running'
             )
         """)
+        for col, typ in [
+            ("sku", "TEXT"),
+            ("last_seen_at", "TIMESTAMPTZ DEFAULT NOW()"),
+        ]:
+            cur.execute(f"""
+                DO $$ BEGIN
+                    ALTER TABLE products ADD COLUMN {col} {typ};
+                EXCEPTION WHEN duplicate_column THEN NULL;
+                END $$;
+            """)
     conn.commit()
 
 
@@ -75,18 +87,19 @@ def upsert_product(conn, data, category_id=None):
     with conn.cursor() as cur:
         cur.execute("""
             INSERT INTO products (
-                id, external_id, name, slug, description, short_desc,
+                id, external_id, sku, name, slug, description, short_desc,
                 price, original_price, discount_percent, currency,
                 stock_status, category_id, images, thumbnail,
-                available, source_url, scraped_at
+                available, source_url, scraped_at, last_seen_at
             ) VALUES (
-                %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s, %s,
                 %s, %s, %s, %s,
                 %s, %s, %s, %s,
-                %s, %s, NOW()
+                %s, %s, NOW(), NOW()
             )
             ON CONFLICT (external_id) DO UPDATE SET
                 name = EXCLUDED.name,
+                sku = EXCLUDED.sku,
                 slug = EXCLUDED.slug,
                 description = EXCLUDED.description,
                 short_desc = EXCLUDED.short_desc,
@@ -99,10 +112,12 @@ def upsert_product(conn, data, category_id=None):
                 thumbnail = EXCLUDED.thumbnail,
                 available = EXCLUDED.available,
                 source_url = EXCLUDED.source_url,
-                scraped_at = NOW()
+                scraped_at = NOW(),
+                last_seen_at = NOW()
             RETURNING id
         """, (
-            str(uuid.uuid4()), data["external_id"], data["name"], data["slug"],
+            str(uuid.uuid4()), data["external_id"], data.get("sku"),
+            data["name"], data["slug"],
             data.get("description"), data.get("short_desc"),
             data.get("price", 0), data.get("original_price"),
             data.get("discount_percent"), data.get("currency", "EUR"),
@@ -118,9 +133,39 @@ def update_category_counts(conn):
     with conn.cursor() as cur:
         cur.execute("""
             UPDATE categories c SET product_count = (
-                SELECT COUNT(*) FROM products p WHERE p.category_id = c.id
+                SELECT COUNT(*) FROM products p
+                WHERE p.category_id = c.id AND p.available = TRUE
             )
         """)
+    conn.commit()
+
+
+def soft_delete_unseen(conn, run_started_at):
+    with conn.cursor() as cur:
+        cur.execute("""
+            UPDATE products
+            SET available = FALSE
+            WHERE last_seen_at < %s AND available = TRUE
+            RETURNING id, name
+        """, (run_started_at,))
+        stale = cur.fetchall()
+    conn.commit()
+    return stale
+
+
+def update_category_image(conn, category_id, image_url):
+    with conn.cursor() as cur:
+        cur.execute("""
+            UPDATE categories SET image_url = %s WHERE id = %s AND image_url IS NULL
+        """, (image_url, str(category_id)))
+    conn.commit()
+
+
+def set_category_icon(conn, slug, icon_name):
+    with conn.cursor() as cur:
+        cur.execute("""
+            UPDATE categories SET icon = %s WHERE slug = %s
+        """, (icon_name, slug))
     conn.commit()
 
 
