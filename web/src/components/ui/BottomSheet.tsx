@@ -37,15 +37,14 @@ export function BottomSheet({ open, onClose, children, title }: BottomSheetProps
           />
           {/* Sheet */}
           <motion.div
-            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl bg-card shadow-xl"
+            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl bg-card shadow-xl will-change-transform"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{
-              type: "spring",
-              damping: 28,
-              stiffness: 340,
-              mass: 0.8,
+              type: "tween",
+              duration: 0.28,
+              ease: [0.32, 0.72, 0, 1],
             }}
             drag="y"
             dragConstraints={{ top: 0 }}
