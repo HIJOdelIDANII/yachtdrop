@@ -1,5 +1,7 @@
 # AI / IDE
-.github/
+.github/copilot-instructions.md
+.github/prompts/
+.github/*.prompt*
 .copilotignore
 .vscode/
 BUILDPLAN.md
@@ -34,3 +36,4 @@ node_modules/
 .env*.local
 
 BUILDPLAN.md
+internal_docs/

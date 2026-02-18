@@ -41,7 +41,7 @@ export function CategoryTabs({ selected, onSelect }: CategoryTabsProps) {
               <motion.span
                 layoutId="category-tab-active"
                 className="absolute inset-0 rounded-full bg-[var(--color-ocean)]"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.8 }}
               />
             )}
             <span

@@ -13,6 +13,8 @@ import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils/price";
 import { toast } from "sonner";
 import { Truck, MapPin, Loader2 } from "lucide-react";
+import { MarinaPicker } from "@/components/search/MarinaPicker";
+import type { Marina } from "@/types";
 
 type DeliveryType = "DELIVERY" | "PICKUP";
 
@@ -31,13 +33,17 @@ export function CheckoutSheet() {
   const [berthNumber, setBerthNumber] = useState("");
   const [notes, setNotes] = useState("");
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [selectedMarina, setSelectedMarina] = useState<Marina | null>(null);
 
   const open = activeSheet === "checkout";
   const deliveryFee = deliveryType === "DELIVERY" ? 5.0 : 0;
   const total = subtotal + deliveryFee;
 
   const isValid =
-    contactName.trim() && contactPhone.trim() && contactEmail.trim();
+    contactName.trim() &&
+    contactPhone.trim() &&
+    contactEmail.trim() &&
+    (deliveryType === "DELIVERY" || selectedMarina !== null);
 
   const handleSubmit = async () => {
     if (!isValid) {
@@ -48,6 +54,7 @@ export function CheckoutSheet() {
     try {
       const order = await createOrder.mutateAsync({
         deliveryType,
+        marinaId: selectedMarina?.id || undefined,
         berthNumber: berthNumber || undefined,
         contactName: contactName.trim(),
         contactPhone: contactPhone.trim(),
@@ -203,6 +210,25 @@ export function CheckoutSheet() {
                 onChange={(e) => setBerthNumber(e.target.value)}
               />
             </div>
+          </div>
+        )}
+
+        {/* Pickup marina selection */}
+        {deliveryType === "PICKUP" && (
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              Select Pickup Marina
+            </h3>
+            <MarinaPicker
+              selectedMarinaId={selectedMarina?.id}
+              onSelect={(marina) => setSelectedMarina(marina)}
+            />
+            {selectedMarina && (
+              <p className="text-xs text-muted-foreground">
+                Pickup at: <strong>{selectedMarina.name}</strong>
+                {selectedMarina.city && `, ${selectedMarina.city}`}
+              </p>
+            )}
           </div>
         )}
 
