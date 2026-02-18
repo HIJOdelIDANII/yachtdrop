@@ -1,0 +1,262 @@
+"use client";
+
+import { useState } from "react";
+import { useCartStore } from "@/store/cart.store";
+import { useUIStore } from "@/store/ui.store";
+import { useCreateOrder } from "@/lib/hooks/useData";
+import { BottomSheet } from "@/components/ui/BottomSheet";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
+import { formatPrice } from "@/lib/utils/price";
+import { toast } from "sonner";
+import { Truck, MapPin, Loader2 } from "lucide-react";
+
+type DeliveryType = "DELIVERY" | "PICKUP";
+
+export function CheckoutSheet() {
+  const items = useCartStore((s) => s.items);
+  const subtotal = useCartStore((s) => s.subtotal());
+  const clearCart = useCartStore((s) => s.clearCart);
+  const activeSheet = useUIStore((s) => s.activeSheet);
+  const closeSheet = useUIStore((s) => s.closeSheet);
+  const createOrder = useCreateOrder();
+
+  const [deliveryType, setDeliveryType] = useState<DeliveryType>("DELIVERY");
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [berthNumber, setBerthNumber] = useState("");
+  const [notes, setNotes] = useState("");
+  const [orderId, setOrderId] = useState<string | null>(null);
+
+  const open = activeSheet === "checkout";
+  const deliveryFee = deliveryType === "DELIVERY" ? 5.0 : 0;
+  const total = subtotal + deliveryFee;
+
+  const isValid =
+    contactName.trim() && contactPhone.trim() && contactEmail.trim();
+
+  const handleSubmit = async () => {
+    if (!isValid) {
+      toast.error("Please fill in all contact fields");
+      return;
+    }
+
+    try {
+      const order = await createOrder.mutateAsync({
+        deliveryType,
+        berthNumber: berthNumber || undefined,
+        contactName: contactName.trim(),
+        contactPhone: contactPhone.trim(),
+        contactEmail: contactEmail.trim(),
+        notes: notes || undefined,
+        items: items.map((i) => ({
+          productId: i.product.id,
+          quantity: i.quantity,
+        })),
+      });
+
+      setOrderId(order.id);
+      // Save order ID for the orders page
+      const existingOrders = JSON.parse(
+        localStorage.getItem("yachtdrop_orders") || "[]"
+      );
+      localStorage.setItem(
+        "yachtdrop_orders",
+        JSON.stringify([order.id, ...existingOrders])
+      );
+      clearCart();
+      toast.success("Order placed successfully!");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to place order"
+      );
+    }
+  };
+
+  const handleClose = () => {
+    setOrderId(null);
+    closeSheet();
+  };
+
+  if (orderId) {
+    return (
+      <BottomSheet open={open} onClose={handleClose} title="Order Confirmed!">
+        <div className="flex flex-col items-center gap-4 py-8">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+            <svg
+              className="h-8 w-8 text-green-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-[var(--color-navy)]">
+            Thank you for your order!
+          </h3>
+          <p className="text-center text-sm text-gray-500">
+            Your order has been placed. Estimated delivery: 45–60 min.
+          </p>
+          <p className="text-xs text-gray-400">
+            Order ID: {orderId.slice(0, 8)}…
+          </p>
+          <Button
+            className="mt-4 w-full bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean)]/90"
+            onClick={handleClose}
+          >
+            Done
+          </Button>
+        </div>
+      </BottomSheet>
+    );
+  }
+
+  return (
+    <BottomSheet open={open} onClose={handleClose} title="Checkout">
+      <div className="space-y-5">
+        {/* Delivery type toggle */}
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => setDeliveryType("DELIVERY")}
+            className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-colors ${
+              deliveryType === "DELIVERY"
+                ? "border-[var(--color-ocean)] bg-[var(--color-ocean)]/10 text-[var(--color-ocean)]"
+                : "border-gray-200 text-gray-500"
+            }`}
+          >
+            <Truck className="h-4 w-4" />
+            Delivery
+          </button>
+          <button
+            onClick={() => setDeliveryType("PICKUP")}
+            className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-colors ${
+              deliveryType === "PICKUP"
+                ? "border-[var(--color-ocean)] bg-[var(--color-ocean)]/10 text-[var(--color-ocean)]"
+                : "border-gray-200 text-gray-500"
+            }`}
+          >
+            <MapPin className="h-4 w-4" />
+            Pickup
+          </button>
+        </div>
+
+        {/* Contact info */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-[var(--color-navy)]">
+            Contact Information
+          </h3>
+          <div className="space-y-2">
+            <div>
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                placeholder="John Smith"
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+34 600 000 000"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="john@example.com"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Delivery-specific fields */}
+        {deliveryType === "DELIVERY" && (
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-[var(--color-navy)]">
+              Delivery Details
+            </h3>
+            <div>
+              <Label htmlFor="berth">Berth / Pontoon Number</Label>
+              <Input
+                id="berth"
+                placeholder="B-42"
+                value={berthNumber}
+                onChange={(e) => setBerthNumber(e.target.value)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Notes */}
+        <div>
+          <Label htmlFor="notes">Notes (optional)</Label>
+          <Textarea
+            id="notes"
+            placeholder="Any special instructions..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={2}
+          />
+        </div>
+
+        <Separator />
+
+        {/* Order summary */}
+        <div className="space-y-1 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-500">
+              {items.length} {items.length === 1 ? "item" : "items"}
+            </span>
+            <span>{formatPrice(subtotal)}</span>
+          </div>
+          {deliveryType === "DELIVERY" && (
+            <div className="flex justify-between">
+              <span className="text-gray-500">Delivery fee</span>
+              <span>{formatPrice(deliveryFee)}</span>
+            </div>
+          )}
+          <Separator />
+          <div className="flex justify-between text-base font-bold">
+            <span>Total</span>
+            <span>{formatPrice(total)}</span>
+          </div>
+        </div>
+
+        {/* Submit */}
+        <Button
+          className="w-full bg-[var(--color-ocean)] py-6 text-base font-semibold text-white hover:bg-[var(--color-ocean)]/90"
+          onClick={handleSubmit}
+          disabled={!isValid || createOrder.isPending}
+        >
+          {createOrder.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Placing order…
+            </>
+          ) : (
+            `Place Order — ${formatPrice(total)}`
+          )}
+        </Button>
+      </div>
+    </BottomSheet>
+  );
+}
