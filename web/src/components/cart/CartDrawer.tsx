@@ -7,7 +7,8 @@ import { CartItem } from "./CartItem";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils/price";
-import { ShoppingCart } from "lucide-react";
+import { Anchor } from "lucide-react";
+import Link from "next/link";
 
 export function CartDrawer() {
   const items = useCartStore((s) => s.items);
@@ -23,14 +24,20 @@ export function CartDrawer() {
   return (
     <BottomSheet open={open} onClose={closeSheet} title="Your Cart">
       {items.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-12 text-gray-400">
-          <ShoppingCart className="h-12 w-12" />
-          <p className="text-sm">Your cart is empty</p>
+        <div className="flex flex-col items-center gap-4 py-12 text-muted-foreground">
+          <Anchor className="h-14 w-14" />
+          <p className="text-base font-medium">Your cart is empty</p>
+          <p className="text-sm">Browse marine parts and add them here</p>
+          <Link href="/browse" onClick={() => closeSheet()}>
+            <Button className="bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean)]/90">
+              Start Browsing
+            </Button>
+          </Link>
         </div>
       ) : (
         <div className="space-y-3">
           {/* Items */}
-          <div className="divide-y">
+          <div className="divide-y divide-border">
             {items.map((item) => (
               <CartItem key={item.product.id} item={item} />
             ))}
@@ -41,15 +48,15 @@ export function CartDrawer() {
           {/* Totals */}
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">Subtotal</span>
-              <span>{formatPrice(subtotal)}</span>
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-foreground">{formatPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Delivery fee</span>
-              <span>{formatPrice(deliveryFee)}</span>
+              <span className="text-muted-foreground">Delivery fee</span>
+              <span className="text-foreground">{formatPrice(deliveryFee)}</span>
             </div>
             <Separator />
-            <div className="flex justify-between text-base font-bold">
+            <div className="flex justify-between text-base font-bold text-foreground">
               <span>Total</span>
               <span>{formatPrice(subtotal + deliveryFee)}</span>
             </div>
@@ -59,13 +66,13 @@ export function CartDrawer() {
           <div className="flex gap-2 pt-2">
             <Button
               variant="outline"
-              className="flex-1"
+              className="min-h-[44px] flex-1"
               onClick={clearCart}
             >
               Clear Cart
             </Button>
             <Button
-              className="flex-1 bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean)]/90"
+              className="min-h-[44px] flex-1 bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean)]/90"
               onClick={() => {
                 closeSheet();
                 setTimeout(() => openSheet("checkout"), 150);

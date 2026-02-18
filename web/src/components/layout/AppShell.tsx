@@ -8,7 +8,7 @@ import { CheckoutSheet } from "@/components/checkout/CheckoutSheet";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh bg-[var(--color-bg)]">
+    <div className="min-h-dvh bg-background">
       <main className="pb-36">{children}</main>
       <CartBar />
       <ProductSheet />

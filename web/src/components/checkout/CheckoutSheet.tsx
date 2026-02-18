@@ -101,13 +101,13 @@ export function CheckoutSheet() {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-[var(--color-navy)]">
+          <h3 className="text-lg font-semibold text-foreground">
             Thank you for your order!
           </h3>
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-muted-foreground">
             Your order has been placed. Estimated delivery: 45–60 min.
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground">
             Order ID: {orderId.slice(0, 8)}…
           </p>
           <Button
@@ -128,10 +128,10 @@ export function CheckoutSheet() {
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => setDeliveryType("DELIVERY")}
-            className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-colors ${
+            className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-colors min-h-[44px] ${
               deliveryType === "DELIVERY"
                 ? "border-[var(--color-ocean)] bg-[var(--color-ocean)]/10 text-[var(--color-ocean)]"
-                : "border-gray-200 text-gray-500"
+                : "border-border text-muted-foreground"
             }`}
           >
             <Truck className="h-4 w-4" />
@@ -139,10 +139,10 @@ export function CheckoutSheet() {
           </button>
           <button
             onClick={() => setDeliveryType("PICKUP")}
-            className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-colors ${
+            className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-colors min-h-[44px] ${
               deliveryType === "PICKUP"
                 ? "border-[var(--color-ocean)] bg-[var(--color-ocean)]/10 text-[var(--color-ocean)]"
-                : "border-gray-200 text-gray-500"
+                : "border-border text-muted-foreground"
             }`}
           >
             <MapPin className="h-4 w-4" />
@@ -152,7 +152,7 @@ export function CheckoutSheet() {
 
         {/* Contact info */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-[var(--color-navy)]">
+          <h3 className="text-sm font-semibold text-foreground">
             Contact Information
           </h3>
           <div className="space-y-2">
@@ -191,7 +191,7 @@ export function CheckoutSheet() {
         {/* Delivery-specific fields */}
         {deliveryType === "DELIVERY" && (
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-[var(--color-navy)]">
+            <h3 className="text-sm font-semibold text-foreground">
               Delivery Details
             </h3>
             <div>
@@ -223,19 +223,19 @@ export function CheckoutSheet() {
         {/* Order summary */}
         <div className="space-y-1 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-500">
+            <span className="text-muted-foreground">
               {items.length} {items.length === 1 ? "item" : "items"}
             </span>
-            <span>{formatPrice(subtotal)}</span>
+            <span className="text-foreground">{formatPrice(subtotal)}</span>
           </div>
           {deliveryType === "DELIVERY" && (
             <div className="flex justify-between">
-              <span className="text-gray-500">Delivery fee</span>
-              <span>{formatPrice(deliveryFee)}</span>
+              <span className="text-muted-foreground">Delivery fee</span>
+              <span className="text-foreground">{formatPrice(deliveryFee)}</span>
             </div>
           )}
           <Separator />
-          <div className="flex justify-between text-base font-bold">
+          <div className="flex justify-between text-base font-bold text-foreground">
             <span>Total</span>
             <span>{formatPrice(total)}</span>
           </div>
