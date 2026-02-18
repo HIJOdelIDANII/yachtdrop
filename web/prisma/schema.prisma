@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id           String    @id @default(uuid())
+  slug         String    @unique
+  name         String
+  icon         String?
+  imageUrl     String?   @map("image_url")
+  productCount Int       @default(0) @map("product_count")
+  displayOrder Int       @default(0) @map("display_order")
+  products     Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  externalId  String?  @unique @map("external_id")
+  name        String
+  slug        String   @unique
+  description String?
+  shortDesc   String?  @map("short_desc")
+  price           Decimal  @db.Decimal(10, 2)
+  originalPrice   Decimal? @db.Decimal(10, 2) @map("original_price")
+  discountPercent Int?     @map("discount_percent")
+  currency        String   @default("EUR")
+  stockStatus     String   @default("IN_STOCK") @map("stock_status")
+  categoryId      String?  @map("category_id")
+  category    Category? @relation(fields: [categoryId], references: [id])
+  images      String[]
+  thumbnail   String?
+  available   Boolean  @default(true)
+  sourceUrl   String?  @map("source_url")
+  scrapedAt   DateTime? @map("scraped_at")
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+model Marina {
+  id      String  @id @default(uuid())
+  name    String
+  city    String?
+  country String?
+  lat     Decimal? @db.Decimal(9, 6)
+  lng     Decimal? @db.Decimal(9, 6)
+  orders  Order[]
+
+  @@map("marinas")
+}
+
+model Order {
+  id            String       @id @default(uuid())
+  createdAt     DateTime     @default(now()) @map("created_at")
+  status        OrderStatus  @default(PENDING)
+  deliveryType  DeliveryType @map("delivery_type")
+  marinaId      String?      @map("marina_id")
+  marina        Marina?      @relation(fields: [marinaId], references: [id])
+  berthNumber   String?      @map("berth_number")
+  contactName   String       @map("contact_name")
+  contactPhone  String       @map("contact_phone")
+  contactEmail  String       @map("contact_email")
+  subtotal      Decimal      @db.Decimal(10, 2)
+  deliveryFee   Decimal      @default(0) @db.Decimal(10, 2) @map("delivery_fee")
+  total         Decimal      @db.Decimal(10, 2)
+  notes         String?
+  estimatedTime String?      @map("estimated_time")
+  items         OrderItem[]
+  events        OrderEvent[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String  @map("order_id")
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2) @map("unit_price")
+  total     Decimal @db.Decimal(10, 2)
+
+  @@map("order_items")
+}
+
+model OrderEvent {
+  id        String   @id @default(uuid())
+  orderId   String   @map("order_id")
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    String
+  message   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("order_events")
+}
+
+model ScraperRun {
+  id              String    @id @default(uuid())
+  startedAt       DateTime  @default(now()) @map("started_at")
+  finishedAt      DateTime? @map("finished_at")
+  productsScraped Int       @default(0) @map("products_scraped")
+  errors          Int       @default(0)
+  status          String    @default("running")
+
+  @@map("scraper_runs")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  DELIVERED
+}
+
+enum DeliveryType {
+  DELIVERY
+  PICKUP
+}
