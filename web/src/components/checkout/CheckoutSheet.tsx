@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/cart.store";
 import { useUIStore } from "@/store/ui.store";
 import { useCreateOrder } from "@/lib/hooks/useData";
@@ -195,42 +196,67 @@ export function CheckoutSheet() {
           </div>
         </div>
 
-        {/* Delivery-specific fields */}
-        {deliveryType === "DELIVERY" && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">
-              Delivery Details
-            </h3>
-            <div>
-              <Label htmlFor="berth">Berth / Pontoon Number</Label>
-              <Input
-                id="berth"
-                placeholder="B-42"
-                value={berthNumber}
-                onChange={(e) => setBerthNumber(e.target.value)}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Pickup marina selection */}
-        {deliveryType === "PICKUP" && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">
-              Select Pickup Marina
-            </h3>
-            <MarinaPicker
-              selectedMarinaId={selectedMarina?.id}
-              onSelect={(marina) => setSelectedMarina(marina)}
-            />
-            {selectedMarina && (
-              <p className="text-xs text-muted-foreground">
-                Pickup at: <strong>{selectedMarina.name}</strong>
-                {selectedMarina.city && `, ${selectedMarina.city}`}
-              </p>
-            )}
-          </div>
-        )}
+        {/* Delivery / Pickup conditional section */}
+        <AnimatePresence mode="popLayout" initial={false}>
+          {deliveryType === "DELIVERY" ? (
+            <motion.div
+              key="delivery-fields"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Delivery Details
+                </h3>
+                <div>
+                  <Label htmlFor="berth">Berth / Pontoon Number</Label>
+                  <Input
+                    id="berth"
+                    placeholder="B-42"
+                    value={berthNumber}
+                    onChange={(e) => setBerthNumber(e.target.value)}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="pickup-fields"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Select Pickup Marina
+                </h3>
+                <MarinaPicker
+                  selectedMarinaId={selectedMarina?.id}
+                  onSelect={(marina) => setSelectedMarina(marina)}
+                />
+                <AnimatePresence>
+                  {selectedMarina && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.15 }}
+                      className="text-xs text-muted-foreground"
+                    >
+                      Pickup at: <strong>{selectedMarina.name}</strong>
+                      {selectedMarina.city && `, ${selectedMarina.city}`}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Notes */}
         <div>

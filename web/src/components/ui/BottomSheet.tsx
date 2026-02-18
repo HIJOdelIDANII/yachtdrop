@@ -41,7 +41,12 @@ export function BottomSheet({ open, onClose, children, title }: BottomSheetProps
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            transition={{
+              type: "spring",
+              damping: 28,
+              stiffness: 340,
+              mass: 0.8,
+            }}
             drag="y"
             dragConstraints={{ top: 0 }}
             dragControls={dragControls}
@@ -55,12 +60,7 @@ export function BottomSheet({ open, onClose, children, title }: BottomSheetProps
               onPointerDown={(e) => dragControls.start(e)}
               style={{ touchAction: "none" }}
             >
-              <motion.div
-                className="h-1 w-10 rounded-full bg-muted-foreground/30"
-                initial={{ opacity: 0.4 }}
-                animate={{ opacity: [0.4, 0.8, 0.4] }}
-                transition={{ duration: 1.5, repeat: 1, ease: "easeInOut" }}
-              />
+              <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
             </div>
             {title && (
               <h2 className="px-4 pb-2 text-lg font-semibold text-foreground">
