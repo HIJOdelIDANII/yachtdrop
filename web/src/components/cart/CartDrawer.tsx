@@ -1,3 +1,20 @@
+/**
+ * CartDrawer — Bottom sheet showing cart contents, totals, and checkout CTA.
+ *
+ * DESIGN DECISIONS:
+ * - Opens via BottomSheet (drag-to-dismiss) for native app-like feel.
+ * - Delivery fee is NOT shown here — only "Calculated at checkout".
+ *   Previously it was hardcoded to €5 which was misleading because the user
+ *   hasn't chosen delivery vs pickup yet. Uber Eats does the same: cart shows
+ *   subtotal, fees appear only at checkout.
+ * - Checkout CTA uses bg-foreground (dark in light mode, light in dark mode)
+ *   which inverts the theme for maximum contrast. This is the highest-priority
+ *   action on the page.
+ * - 150ms setTimeout before opening checkout sheet prevents two sheets
+ *   animating simultaneously (close cart → wait → open checkout).
+ * - Empty cart state shows branded Anchor icon and a CTA to browse,
+ *   preventing a dead-end in the user flow.
+ */
 "use client";
 
 import { useCartStore } from "@/store/cart.store";
@@ -18,7 +35,6 @@ export function CartDrawer() {
   const closeSheet = useUIStore((s) => s.closeSheet);
   const openSheet = useUIStore((s) => s.openSheet);
 
-  const deliveryFee = 5.0;
   const open = activeSheet === "cart";
 
   return (
@@ -49,36 +65,32 @@ export function CartDrawer() {
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="text-foreground">{formatPrice(subtotal)}</span>
+              <span className="font-medium text-foreground">{formatPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Delivery fee</span>
-              <span className="text-foreground">{formatPrice(deliveryFee)}</span>
-            </div>
-            <Separator />
-            <div className="flex justify-between text-base font-bold text-foreground">
-              <span>Total</span>
-              <span>{formatPrice(subtotal + deliveryFee)}</span>
+              <span className="text-muted-foreground">Delivery</span>
+              <span className="text-xs text-muted-foreground">Calculated at checkout</span>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-2 pt-1">
             <Button
-              variant="outline"
-              className="min-h-[44px] flex-1"
+              variant="ghost"
+              size="sm"
+              className="min-h-[44px] text-muted-foreground"
               onClick={clearCart}
             >
-              Clear Cart
+              Clear
             </Button>
             <Button
-              className="min-h-[44px] flex-1 bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean)]/90"
+              className="min-h-[48px] flex-1 rounded-xl bg-foreground text-background hover:bg-foreground/90 text-sm font-semibold active:scale-[0.98] transition-transform"
               onClick={() => {
                 closeSheet();
                 setTimeout(() => openSheet("checkout"), 150);
               }}
             >
-              Checkout — {formatPrice(subtotal + deliveryFee)}
+              Checkout · {formatPrice(subtotal)}
             </Button>
           </div>
         </div>

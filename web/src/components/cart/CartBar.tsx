@@ -1,3 +1,20 @@
+/**
+ * CartBar — Floating "View Cart" pill above the BottomNav.
+ *
+ * DESIGN DECISIONS:
+ * - Modeled after Uber Eats’ green floating cart bar. Uses brand ocean color
+ *   with a colored shadow (rgba glow) for visual prominence without blocking content.
+ * - Positioned at bottom-[72px] to sit just above the BottomNav (which is ~56px + safe area).
+ *   z-30 keeps it below the nav (z-40) but above page content.
+ * - Spring animation (damping: 28, stiffness: 350) gives a snappy, physics-based
+ *   entrance. Feels tactile on mobile — like the bar "bounces" into place.
+ * - useHydrated() gate prevents flash of cart bar during SSR/hydration mismatch.
+ *   Zustand’s persisted cart loads from localStorage after hydration, so the bar
+ *   would flicker without this guard.
+ * - Shows item count in a rounded-lg badge (bg-white/20) and total price on the right.
+ *   This layout maps to Uber Eats: [count] [label] ... [price].
+ * - active:scale-[0.98] provides instant tap feedback via CSS transforms.
+ */
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -5,7 +22,7 @@ import { useCartStore } from "@/store/cart.store";
 import { useUIStore } from "@/store/ui.store";
 import { useHydrated } from "@/lib/hooks/useHydrated";
 import { formatPrice } from "@/lib/utils/price";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 
 export function CartBar() {
   const hydrated = useHydrated();
@@ -13,41 +30,28 @@ export function CartBar() {
   const subtotal = useCartStore((s) => s.subtotal());
   const openSheet = useUIStore((s) => s.openSheet);
 
-  if (!hydrated) return null;
+  if (!hydrated || itemCount === 0) return null;
 
   return (
     <AnimatePresence>
-      {itemCount > 0 && (
-        <motion.button
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="fixed right-4 bottom-20 left-4 z-30 grid grid-cols-[1fr_auto] rounded-2xl bg-[var(--color-navy)] px-5 text-white shadow-lg safe-bottom"
-          onClick={() => openSheet("cart")}
-          data-testid="cart-bar"
-        >
-          <div className="flex h-14 items-center gap-2">
-            <ShoppingCart className="h-5 w-5 shrink-0" />
-            <span className="text-sm font-medium">
-              {itemCount} {itemCount === 1 ? "item" : "items"}
-            </span>
-          </div>
-          <div className="flex h-14 items-center gap-2.5">
-            {/* Bouncing badge */}
-            <motion.span
-              key={itemCount}
-              initial={{ scale: 1 }}
-              animate={{ scale: [1, 1.3, 1] }}
-              transition={{ duration: 0.3 }}
-              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-ocean)] text-xs font-bold"
-            >
-              {itemCount}
-            </motion.span>
-            <span className="text-base font-bold">{formatPrice(subtotal)}</span>
-          </div>
-        </motion.button>
-      )}
+      <motion.button
+        key="cart-bar"
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 80, opacity: 0 }}
+        transition={{ type: "spring", damping: 28, stiffness: 350 }}
+        className="fixed right-3 bottom-[72px] left-3 z-30 flex items-center justify-between rounded-2xl bg-[var(--color-ocean)] px-4 py-3 text-white shadow-[0_4px_20px_rgba(0,180,216,0.35)] active:scale-[0.98] transition-transform duration-100"
+        onClick={() => openSheet("cart")}
+        data-testid="cart-bar"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/20 text-xs font-bold">
+            {itemCount}
+          </span>
+          <span className="text-sm font-semibold">View Cart</span>
+        </div>
+        <span className="text-sm font-bold">{formatPrice(subtotal)}</span>
+      </motion.button>
     </AnimatePresence>
   );
 }

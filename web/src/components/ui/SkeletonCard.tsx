@@ -2,13 +2,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function SkeletonCard() {
   return (
-    <div className="animate-pulse space-y-2 rounded-xl border border-border bg-card p-0 overflow-hidden">
-      <Skeleton className="aspect-square w-full rounded-none" />
-      <div className="space-y-2 p-3">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-4 w-1/2" />
-        <Skeleton className="h-3 w-1/3" />
-        <Skeleton className="h-9 w-full rounded-md" />
+    <div className="animate-pulse">
+      <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
+      <div className="space-y-1.5 px-1 pt-2">
+        <Skeleton className="h-3.5 w-4/5" />
+        <Skeleton className="h-3.5 w-1/3" />
       </div>
     </div>
   );
