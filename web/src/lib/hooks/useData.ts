@@ -91,6 +91,32 @@ export function useSearch(query: string) {
   });
 }
 
+// ─── Trending products ──────────────────────────────────────────
+export function useTrendingProducts() {
+  return useQuery<Product[]>({
+    queryKey: ["products-trending"],
+    queryFn: async () => {
+      const res = await fetch("/api/products/trending");
+      const json = await res.json();
+      return json.data;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+// ─── Best offers ────────────────────────────────────────────────
+export function useOffers() {
+  return useQuery<Product[]>({
+    queryKey: ["products-offers"],
+    queryFn: async () => {
+      const res = await fetch("/api/products/offers");
+      const json = await res.json();
+      return json.data;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 // ─── Create order ────────────────────────────────────────────────
 export function useCreateOrder() {
   return useMutation<Order, Error, Record<string, unknown>>({

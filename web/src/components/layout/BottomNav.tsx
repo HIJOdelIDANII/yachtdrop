@@ -1,53 +1,54 @@
+/**
+ * BottomNav — Fixed bottom navigation bar (iOS tab bar pattern).
+ *
+ * DESIGN DECISIONS:
+ * - Fixed at bottom with z-40 (highest z-index in the app). CartBar (z-30)
+ *   sits just above the nav visually but below in z-order.
+ * - backdrop-blur-md + bg-card/95 creates a frosted glass effect that lets
+ *   content scroll underneath while keeping the nav readable. This is the
+ *   same technique iOS uses for its native tab bar.
+ * - safe-bottom CSS class adds padding-bottom for devices with home indicators
+ *   (iPhone X+, newer Androids) to prevent nav items from being occluded.
+ * - Active state uses strokeWidth 2.5 (bolder) vs 1.5 (thinner) on icons.
+ *   This is how Uber Eats and iOS differentiate active/inactive tabs —
+ *   subtle but effective without needing color changes.
+ * - 10px label text (text-[10px]) is the iOS standard for tab bar labels.
+ * - 4-column grid ensures equal spacing regardless of label length.
+ * - No framer-motion here — nav should feel instant, never animated.
+ */
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Grid3X3, Search, ClipboardList } from "lucide-react";
+import { Home, Grid3X3, Search, Package } from "lucide-react";
 
-const tabs = [
-  { href: "/", label: "Home", icon: null },
-  { href: "/browse", label: "Browse", icon: Grid3X3 },
-  { href: "/search", label: "Search", icon: Search },
-  { href: "/orders", label: "Orders", icon: ClipboardList },
-] as const;
+const navItems = [
+  { href: "/", icon: Home, label: "Home" },
+  { href: "/browse", icon: Grid3X3, label: "Browse" },
+  { href: "/search", icon: Search, label: "Search" },
+  { href: "/orders", icon: Package, label: "Orders" },
+];
 
 export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav
-      data-testid="bottom-nav"
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card shadow-[0_-1px_0_rgba(0,0,0,0.06)] safe-bottom"
-    >
-      <div className="mx-auto flex max-w-lg items-center justify-around">
-        {tabs.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href;
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur-md safe-bottom">
+      <div className="mx-auto grid max-w-lg grid-cols-4">
+        {navItems.map(({ href, icon: Icon, label }) => {
+          const isActive = pathname === href;
           return (
             <Link
               key={href}
               href={href}
-              data-testid={`nav-${label.toLowerCase()}`}
-              className={`flex min-h-[56px] min-w-[64px] flex-col items-center justify-center gap-0.5 px-3 py-2 text-xs transition-colors ${
-                active
-                  ? "text-[var(--color-ocean)]"
-                  : "text-muted-foreground active:text-[var(--color-ocean)]"
+              className={`flex flex-col items-center gap-0.5 py-2 text-[10px] transition-colors ${
+                isActive
+                  ? "text-foreground"
+                  : "text-muted-foreground active:text-foreground"
               }`}
             >
-              {label === "Home" ? (
-                <Image
-                  src="/brand/logo.png"
-                  alt="Home"
-                  width={22}
-                  height={22}
-                  className={active ? "opacity-100" : "opacity-60"}
-                />
-              ) : Icon ? (
-                <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 1.5} />
-              ) : null}
-              <span className={active ? "font-semibold" : "font-normal"}>
-                {label}
-              </span>
+              <Icon className="h-[18px] w-[18px]" strokeWidth={isActive ? 2.5 : 1.5} />
+              <span className={isActive ? "font-semibold" : "font-normal"}>{label}</span>
             </Link>
           );
         })}
