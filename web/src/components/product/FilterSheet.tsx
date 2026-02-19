@@ -6,8 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { useQuery } from "@tanstack/react-query";
-import type { Category } from "@/types";
+import { useCategories } from "@/lib/hooks/useData";
 
 interface FilterSheetProps {
   open: boolean;
@@ -31,14 +30,7 @@ export function FilterSheet({ open, onOpenChange }: FilterSheetProps) {
     resetFilters,
   } = useFilterStore();
 
-  const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const res = await fetch("/api/categories");
-      return res.json();
-    },
-    staleTime: 1000 * 60 * 5,
-  });
+  const { data: categories = [] } = useCategories();
 
   const handleReset = () => {
     resetFilters();

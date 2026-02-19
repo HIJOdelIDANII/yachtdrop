@@ -37,7 +37,7 @@ export function CheckoutSheet() {
   const [selectedMarina, setSelectedMarina] = useState<Marina | null>(null);
 
   const open = activeSheet === "checkout";
-  const deliveryFee = deliveryType === "DELIVERY" ? 5.0 : 0;
+  const deliveryFee = deliveryType === "DELIVERY" ? Number(process.env.NEXT_PUBLIC_DELIVERY_FEE ?? 5) : 0;
   const total = subtotal + deliveryFee;
 
   const isValid =
