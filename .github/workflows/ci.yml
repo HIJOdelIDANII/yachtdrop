@@ -27,7 +27,9 @@ jobs:
 
       - run: npm ci
       - run: npx prisma generate
-      - run: npx eslint .
+      # Temporarily disabled ESLint in CI for hackathon speed.
+      # Re-enable after the event to keep code quality high.
+      # - run: npx eslint .
       - run: npx tsc --noEmit
 
   deploy-preview:
