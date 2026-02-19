@@ -34,7 +34,6 @@ interface ProductRowProps {
   icon?: ReactNode;
   products: Product[] | undefined;
   isLoading: boolean;
-  emptyMessage?: string;
   badge?: (product: Product) => string | null;
 }
 
@@ -43,7 +42,6 @@ export function ProductRow({
   icon,
   products,
   isLoading,
-  emptyMessage = "Nothing here yet",
   badge,
 }: ProductRowProps) {
   if (!isLoading && (!products || products.length === 0)) return null;

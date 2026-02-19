@@ -22,7 +22,6 @@ import { useCartStore } from "@/store/cart.store";
 import { useUIStore } from "@/store/ui.store";
 import { useHydrated } from "@/lib/hooks/useHydrated";
 import { formatPrice } from "@/lib/utils/price";
-import { ShoppingBag } from "lucide-react";
 
 export function CartBar() {
   const hydrated = useHydrated();

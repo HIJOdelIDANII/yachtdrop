@@ -1,4 +1,4 @@
-import { useFilterStore } from "@/store/filter.store";
+import { useFilterStore, type SortBy } from "@/store/filter.store";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -70,7 +70,7 @@ export function FilterSheet({ open, onOpenChange }: FilterSheetProps) {
             <Label htmlFor="sort" className="text-sm font-semibold">
               Sort by
             </Label>
-            <Select value={sortBy} onValueChange={(value) => setSortBy(value as any)}>
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortBy)}>
               <SelectTrigger id="sort" className="h-10">
                 <SelectValue />
               </SelectTrigger>
