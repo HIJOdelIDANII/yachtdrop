@@ -2,16 +2,17 @@
 
 import { useState, useCallback, useMemo, type KeyboardEvent } from "react";
 import { Input } from "@/components/ui/input";
-import { useSearch, useCategories } from "@/lib/hooks/useData";
-import { useMarinas, haversineDistance } from "@/lib/hooks/useMarinas";
+import { useCategories } from "@/lib/hooks/useData";
+import { haversineDistance } from "@/lib/hooks/useMarinas";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { useSearchInput } from "@/lib/hooks/useSearchInput";
 import { useRecentSearches } from "@/lib/hooks/useRecentSearches";
+import { useCombinedSearch } from "@/lib/hooks/useCombinedSearch";
 import { Autosuggest } from "./Autosuggest";
 import { RecentSearches } from "./RecentSearches";
 import { Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Suggestion, Marina } from "@/types";
+import type { Suggestion, Marina, Product } from "@/types";
 
 interface SearchBarProps {
   onSearch?: (query: string) => void;
@@ -19,6 +20,10 @@ interface SearchBarProps {
   showSuggestions?: boolean;
   externalQuery?: string;
   onQueryChange?: (query: string) => void;
+  /** Pre-fetched results from parent — avoids duplicate requests */
+  searchResults?: Product[];
+  marinas?: Marina[];
+  isLoading?: boolean;
 }
 
 export function SearchBar({
@@ -27,6 +32,9 @@ export function SearchBar({
   showSuggestions = true,
   externalQuery,
   onQueryChange,
+  searchResults: externalSearchResults,
+  marinas: externalMarinas,
+  isLoading: externalIsLoading,
 }: SearchBarProps) {
   const {
     query: internalQuery,
@@ -35,7 +43,7 @@ export function SearchBar({
     clear,
     inputRef,
     isReady,
-  } = useSearchInput(300);
+  } = useSearchInput(150);
 
   const query = externalQuery ?? internalQuery;
   const setQuery = onQueryChange ?? setInternalQuery;
@@ -43,14 +51,16 @@ export function SearchBar({
   const [focused, setFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
 
-  const { data: searchResults, isLoading: searchLoading } = useSearch(
-    externalQuery ?? debouncedQuery
+  // Use parent-provided results if available; otherwise fetch locally (standalone usage)
+  const activeQuery = externalQuery ?? debouncedQuery;
+  const localSearch = useCombinedSearch(
+    externalSearchResults ? "" : activeQuery
   );
-  const { data: marinas } = useMarinas({
-    query: (externalQuery ?? debouncedQuery).length >= 2
-      ? (externalQuery ?? debouncedQuery)
-      : undefined,
-  });
+
+  const searchResults = externalSearchResults ?? localSearch.products;
+  const marinas = externalMarinas ?? localSearch.marinas;
+  const searchLoading = externalIsLoading ?? localSearch.isLoading;
+
   const { data: categories } = useCategories();
   const { position } = useGeolocation();
   const {
@@ -64,7 +74,7 @@ export function SearchBar({
   const suggestions = useMemo<Suggestion[]>(() => {
     if (!isReady && !externalQuery) return [];
     const activeQuery = externalQuery ?? debouncedQuery;
-    if (activeQuery.length < 2) return [];
+    if (activeQuery.length < 1) return [];
 
     const items: Suggestion[] = [];
 
@@ -192,7 +202,7 @@ export function SearchBar({
   );
 
   const showDropdown =
-    focused && showSuggestions && query.length >= 2 && suggestions.length > 0;
+    focused && showSuggestions && query.length >= 1 && suggestions.length > 0;
   const showRecent = focused && query.length === 0 && recentSearches.length > 0;
 
   const activeSuggestionId =

@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: "YachtDrop — Boat Parts, Delivered",
   description:
     "The fastest way to get chandlery supplies delivered to your boat. Browse thousands of marine parts and get them delivered to your marina.",
+  manifest: "/manifest.json",
   icons: {
     icon: [
       { url: "/brand/logo.png", sizes: "32x32", type: "image/png" },

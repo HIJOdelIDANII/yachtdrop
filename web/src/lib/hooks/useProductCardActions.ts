@@ -15,6 +15,8 @@ export function useProductCardActions(product: Product) {
       e.stopPropagation();
       addItem(product);
       setAdded(true);
+      // Haptic feedback for native app feel (supported on most mobile browsers)
+      if (navigator.vibrate) navigator.vibrate(10);
       setTimeout(() => setAdded(false), 600);
     },
     [addItem, product]

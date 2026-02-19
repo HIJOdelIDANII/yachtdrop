@@ -5,26 +5,26 @@ import { SearchBar } from "@/components/search/SearchBar";
 import { SearchResults } from "@/components/search/SearchResults";
 import { FilterSheet } from "@/components/product/FilterSheet";
 import { PageTransition } from "@/components/layout/PageTransition";
-import { useSearch } from "@/lib/hooks/useData";
-import { useMarinas } from "@/lib/hooks/useMarinas";
+import { useCombinedSearch } from "@/lib/hooks/useCombinedSearch";
 import { useFilteredProducts } from "@/lib/hooks/useFilteredProducts";
 import type { Marina } from "@/types";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Sliders } from "lucide-react";
+import { Sliders, Search } from "lucide-react";
 
 export default function SearchPage() {
   const [committedQuery, setCommittedQuery] = useState("");
   const [query, setQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
 
-  const { data: products, isLoading: productsLoading } =
-    useSearch(committedQuery);
+  // Single combined fetch — no more duplicate requests
+  const {
+    products,
+    marinas,
+    isProductsLoading,
+  } = useCombinedSearch(committedQuery);
+
   const filteredProducts = useFilteredProducts(products);
-  
-  const { data: marinas, isLoading: marinasLoading } = useMarinas({
-    query: committedQuery.length >= 2 ? committedQuery : undefined,
-  });
 
   const handleSearch = useCallback((q: string) => {
     setCommittedQuery(q);
@@ -35,8 +35,6 @@ export default function SearchPage() {
       description: [marina.city, marina.country].filter(Boolean).join(", "),
     });
   }, []);
-
-  const isLoading = productsLoading || marinasLoading;
 
   return (
     <PageTransition>
@@ -59,24 +57,45 @@ export default function SearchPage() {
             onMarinaSelect={handleMarinaSelect}
             externalQuery={query}
             onQueryChange={setQuery}
+            searchResults={products}
+            marinas={marinas}
+            isLoading={isProductsLoading}
           />
         </header>
 
         {/* Results */}
         <section className="px-4 py-4">
-          {committedQuery.length >= 2 ? (
+          {committedQuery.length >= 1 ? (
             <SearchResults
               query={committedQuery}
               products={filteredProducts}
-              marinas={marinas ?? []}
-              isLoading={isLoading}
+              marinas={marinas}
+              isLoading={isProductsLoading}
               onMarinaSelect={handleMarinaSelect}
             />
           ) : (
-            <div className="py-16 text-center text-muted-foreground">
-              <p className="text-sm">
+            <div className="py-12 text-center">
+              <Search className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+              <p className="text-sm font-medium text-foreground mb-1">
+                Find what you need
+              </p>
+              <p className="text-xs text-muted-foreground mb-6">
                 Search for marine parts, marinas, or categories
               </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {["Anchor", "Rope", "LED lights", "Fenders", "Bilge pump"].map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => {
+                      setQuery(term);
+                      setCommittedQuery(term);
+                    }}
+                    className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground active:scale-95 transition-transform"
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </section>

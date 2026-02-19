@@ -13,7 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils/price";
 import { toast } from "sonner";
-import { Truck, MapPin, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Truck, MapPin, Loader2, Package } from "lucide-react";
 import { MarinaPicker } from "@/components/search/MarinaPicker";
 import type { Marina } from "@/types";
 
@@ -26,6 +27,7 @@ export function CheckoutSheet() {
   const activeSheet = useUIStore((s) => s.activeSheet);
   const closeSheet = useUIStore((s) => s.closeSheet);
   const createOrder = useCreateOrder();
+  const router = useRouter();
 
   const [deliveryType, setDeliveryType] = useState<DeliveryType>("DELIVERY");
   const [contactName, setContactName] = useState("");
@@ -94,9 +96,9 @@ export function CheckoutSheet() {
     return (
       <BottomSheet open={open} onClose={handleClose} title="Order Confirmed!">
         <div className="flex flex-col items-center gap-4 py-8">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
             <svg
-              className="h-8 w-8 text-green-600"
+              className="h-8 w-8 text-green-600 dark:text-green-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -113,17 +115,32 @@ export function CheckoutSheet() {
             Thank you for your order!
           </h3>
           <p className="text-center text-sm text-muted-foreground">
-            Your order has been placed. Estimated delivery: 45–60 min.
+            Your order has been placed.
+            <br />
+            Estimated {deliveryType === "DELIVERY" ? "delivery" : "pickup"}: 45–60 min.
           </p>
           <p className="text-xs text-muted-foreground">
             Order ID: {orderId.slice(0, 8)}…
           </p>
-          <Button
-            className="mt-4 w-full bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean)]/90"
-            onClick={handleClose}
-          >
-            Done
-          </Button>
+          <div className="mt-2 flex w-full flex-col gap-2">
+            <Button
+              className="w-full bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean)]/90"
+              onClick={() => {
+                handleClose();
+                router.push("/orders");
+              }}
+            >
+              <Package className="mr-2 h-4 w-4" />
+              Track Order
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full text-muted-foreground"
+              onClick={handleClose}
+            >
+              Continue Shopping
+            </Button>
+          </div>
         </div>
       </BottomSheet>
     );

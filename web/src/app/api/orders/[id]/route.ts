@@ -33,6 +33,8 @@ export async function GET(
         ...i,
         unitPrice: Number(i.unitPrice),
         total: Number(i.total),
+        productName: i.product?.name ?? null,
+        productThumbnail: i.product?.thumbnail ?? null,
       })),
     },
   });
