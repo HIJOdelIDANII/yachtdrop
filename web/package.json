@@ -11,7 +11,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:prod": "dotenv -e .env.production.local -- prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.0",
@@ -48,6 +50,7 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.1.4",
     "babel-plugin-react-compiler": "1.0.0",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "happy-dom": "^20.6.3",
