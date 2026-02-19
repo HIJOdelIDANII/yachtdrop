@@ -66,6 +66,8 @@ export function useProduct(id: string | null) {
 }
 
 // ─── Search ──────────────────────────────────────────────────────
+// 150ms debounce (down from 300ms) — fast enough to feel instant,
+// slow enough to not fire on every keystroke during fast typing.
 function useDebouncedValue<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -76,18 +78,22 @@ function useDebouncedValue<T>(value: T, delay: number): T {
 }
 
 export function useSearch(query: string) {
-  const debounced = useDebouncedValue(query, 300);
+  const debounced = useDebouncedValue(query, 150);
 
   return useQuery<Product[]>({
     queryKey: ["search", debounced],
     queryFn: async () => {
       const res = await fetch(
-        `/api/search?q=${encodeURIComponent(debounced)}`
+        `/api/search?q=${encodeURIComponent(debounced)}&limit=20`
       );
       const json = await res.json();
       return json.data;
     },
-    enabled: debounced.length >= 2,
+    enabled: debounced.length >= 1,
+    // Keep showing previous results while new ones load — no flash to skeleton
+    placeholderData: keepPreviousData,
+    // Cache search results for 2 min so back-navigation is instant
+    staleTime: 2 * 60 * 1000,
   });
 }
 

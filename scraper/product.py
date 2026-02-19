@@ -45,7 +45,6 @@ def is_product_image(src):
         return False
     if "/modules/" in src:
         return False
-    import re
     if re.search(r"/\d+-\w+_default/", src):
         return True
     if "/img/p/" in src:

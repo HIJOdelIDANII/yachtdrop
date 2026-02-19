@@ -65,8 +65,10 @@ export const ProductCard = memo(function ProductCard({
             sizes="(max-width: 640px) 50vw, 33vw"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-            No image
+          <div className="flex h-full flex-col items-center justify-center gap-1 text-muted-foreground/40">
+            <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            </svg>
           </div>
         )}
 

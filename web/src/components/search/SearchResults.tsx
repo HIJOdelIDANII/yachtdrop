@@ -12,6 +12,7 @@ interface SearchResultsProps {
   products: Product[];
   marinas: Marina[];
   isLoading: boolean;
+  isMarinasLoading?: boolean;
   hasMore?: boolean;
   isFetchingMore?: boolean;
   onLoadMore?: () => void;
@@ -23,6 +24,7 @@ export function SearchResults({
   products,
   marinas,
   isLoading,
+  isMarinasLoading,
   hasMore,
   isFetchingMore,
   onLoadMore,
@@ -46,7 +48,8 @@ export function SearchResults({
     return () => observer.disconnect();
   }, [hasMore, isFetchingMore, onLoadMore]);
 
-  if (isLoading) {
+  // Only show full skeleton when products are still loading
+  if (isLoading && products.length === 0) {
     return (
       <div className="space-y-3">
         {/* Skeleton tiles */}
@@ -66,7 +69,7 @@ export function SearchResults({
 
   const hasResults = products.length > 0 || marinas.length > 0;
 
-  if (!hasResults && query.length >= 2) {
+  if (!hasResults && !isLoading && query.length >= 2) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 8 }}

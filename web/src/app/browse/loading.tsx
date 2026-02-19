@@ -12,7 +12,7 @@ export default function BrowseLoading() {
       <div className="grid grid-cols-2 gap-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="space-y-2">
-            <Skeleton className="aspect-square w-full rounded-xl" />
+            <Skeleton className="aspect-[4/3] w-full rounded-xl" />
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-4 w-1/2" />
           </div>

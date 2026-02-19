@@ -5,6 +5,7 @@
 .copilotignore
 .vscode/
 BUILDPLAN.md
+CLAUDE.md
 TODO.md
 *.prompt
 prompts/
@@ -39,3 +40,5 @@ BUILDPLAN.md
 internal_docs/
 
 .playwright-mcp/
+web/playwright-report/
+web/test-results/

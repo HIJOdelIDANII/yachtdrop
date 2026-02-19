@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
  * Debounced search input hook.
  * Returns current query, debounced value, setter, clear, and input ref.
  */
-export function useSearchInput(delay = 300) {
+export function useSearchInput(delay = 150) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
