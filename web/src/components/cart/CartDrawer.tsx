@@ -17,6 +17,7 @@
  */
 "use client";
 
+import { useState } from "react";
 import { useCartStore } from "@/store/cart.store";
 import { useUIStore } from "@/store/ui.store";
 import { BottomSheet } from "@/components/ui/BottomSheet";
@@ -34,6 +35,7 @@ export function CartDrawer() {
   const activeSheet = useUIStore((s) => s.activeSheet);
   const closeSheet = useUIStore((s) => s.closeSheet);
   const openSheet = useUIStore((s) => s.openSheet);
+  const [confirmClear, setConfirmClear] = useState(false);
 
   const open = activeSheet === "cart";
 
@@ -78,10 +80,18 @@ export function CartDrawer() {
             <Button
               variant="ghost"
               size="sm"
-              className="min-h-[44px] text-muted-foreground"
-              onClick={clearCart}
+              className={`min-h-[44px] transition-colors ${confirmClear ? "text-destructive" : "text-muted-foreground"}`}
+              onClick={() => {
+                if (confirmClear) {
+                  clearCart();
+                  setConfirmClear(false);
+                } else {
+                  setConfirmClear(true);
+                  setTimeout(() => setConfirmClear(false), 3000);
+                }
+              }}
             >
-              Clear
+              {confirmClear ? "Confirm?" : "Clear"}
             </Button>
             <Button
               className="min-h-[48px] flex-1 rounded-xl bg-foreground text-background hover:bg-foreground/90 text-sm font-semibold active:scale-[0.98] transition-transform"

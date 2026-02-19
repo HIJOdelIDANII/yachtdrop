@@ -43,7 +43,7 @@ export default function HomePage() {
           Uber Eats keeps the hero small so users reach content quickly without
           scrolling. The gradient overlay ensures text readability on any hero image.
           quality={75} enables Next.js image optimization (was 'unoptimized' before). */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden min-h-[220px]">
         <Image
           src="/brand/hero-bg.png"
           alt="YachtDrop hero"
@@ -124,12 +124,14 @@ export default function HomePage() {
           title="Trending Now"
           products={trending}
           isLoading={trendingLoading}
+          seeAllHref="/browse"
         />
         <ProductRow
           icon={<BadgePercent className="h-4 w-4 text-red-500" />}
           title="Best Offers"
           products={offers}
           isLoading={offersLoading}
+          seeAllHref="/browse"
           badge={(p) =>
             p.discountPercent && p.discountPercent > 0
               ? `-${p.discountPercent}%`

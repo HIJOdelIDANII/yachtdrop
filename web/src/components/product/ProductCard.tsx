@@ -25,11 +25,10 @@
 import Image from "next/image";
 import type { Product } from "@/types";
 import { formatPrice } from "@/lib/utils/price";
-import { Plus, Check } from "lucide-react";
-import { useCartStore } from "@/store/cart.store";
-import { useUIStore } from "@/store/ui.store";
+import { useProductCardActions } from "@/lib/hooks/useProductCardActions";
+import { FloatingAddButton } from "./FloatingAddButton";
 import { motion } from "framer-motion";
-import { memo, useState, useCallback } from "react";
+import { memo } from "react";
 
 interface ProductCardProps {
   product: Product;
@@ -40,22 +39,10 @@ export const ProductCard = memo(function ProductCard({
   product,
   index = 0,
 }: ProductCardProps) {
-  const addItem = useCartStore((s) => s.addItem);
-  const openSheet = useUIStore((s) => s.openSheet);
-  const [added, setAdded] = useState(false);
+  const { added, handleAdd, handleOpen } = useProductCardActions(product);
 
   const hasDiscount =
     product.originalPrice && product.originalPrice > product.price;
-
-  const handleAdd = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      addItem(product);
-      setAdded(true);
-      setTimeout(() => setAdded(false), 600);
-    },
-    [addItem, product]
-  );
 
   return (
     <motion.div
@@ -64,7 +51,7 @@ export const ProductCard = memo(function ProductCard({
       transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.3), ease: "easeOut" }}
       className="group cursor-pointer overflow-hidden rounded-2xl bg-card active:scale-[0.98] transition-transform duration-100"
       data-testid="product-card"
-      onClick={() => openSheet("product", product.id)}
+      onClick={handleOpen}
     >
       {/* Image — Uber Eats style: large, with floating + button */}
       <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
@@ -90,29 +77,20 @@ export const ProductCard = memo(function ProductCard({
           </span>
         )}
 
-        {/* Low stock pill — top left below discount */}
+        {/* Low stock pill — top right */}
         {product.stockStatus === "LOW_STOCK" && (
           <span className="absolute top-2 right-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
             Low stock
           </span>
         )}
 
-        {/* Floating + button — bottom right of image (Uber Eats pattern) */}
-        <button
-          className={`absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full shadow-lg transition-all duration-150 ${
-            added
-              ? "bg-green-500 text-white scale-110"
-              : "bg-white text-foreground hover:bg-gray-50 active:scale-90 dark:bg-card dark:text-foreground"
-          } ${product.stockStatus === "OUT_OF_STOCK" ? "opacity-40 pointer-events-none" : ""}`}
+        <FloatingAddButton
+          added={added}
+          disabled={product.stockStatus === "OUT_OF_STOCK"}
+          size="md"
           onClick={handleAdd}
-          aria-label={`Add ${product.name} to cart`}
-        >
-          {added ? (
-            <Check className="h-4 w-4" strokeWidth={3} />
-          ) : (
-            <Plus className="h-4 w-4" strokeWidth={2.5} />
-          )}
-        </button>
+          label={`Add ${product.name} to cart`}
+        />
       </div>
 
       {/* Text content — tight, Uber Eats style */}

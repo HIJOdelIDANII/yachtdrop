@@ -263,6 +263,7 @@ export function SearchBar({
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.12 }}
             className="absolute inset-x-0 top-full z-30 mt-1"
+            onMouseDown={(e) => e.preventDefault()}
           >
             <div className="rounded-xl border border-border bg-card p-3 shadow-lg">
               <RecentSearches
@@ -283,7 +284,7 @@ export function SearchBar({
       {/* Autosuggest dropdown */}
       <AnimatePresence>
         {showDropdown && (
-          <div className="absolute inset-x-0 top-full z-30 mt-1">
+          <div className="absolute inset-x-0 top-full z-30 mt-1" onMouseDown={(e) => e.preventDefault()}>
             <Autosuggest
               suggestions={suggestions}
               activeIndex={activeIndex}

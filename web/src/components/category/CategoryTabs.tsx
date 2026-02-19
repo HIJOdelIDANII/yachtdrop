@@ -56,13 +56,18 @@ export const CategoryTabs = memo(function CategoryTabs({
           <button
             key={tab.id ?? "all"}
             onClick={() => onSelect(tab.id)}
-            className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-150 min-h-[34px] ${
+            className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-150 min-h-[34px] flex items-center gap-1 ${
               isActive
                 ? "bg-foreground text-background shadow-sm"
                 : "bg-secondary text-muted-foreground active:bg-secondary/80"
             }`}
           >
             {tab.name}
+            {tab.count !== null && (
+              <span className={`text-[11px] ${isActive ? "text-background/70" : "text-muted-foreground/60"}`}>
+                {tab.count}
+              </span>
+            )}
           </button>
         );
       })}

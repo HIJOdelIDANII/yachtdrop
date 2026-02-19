@@ -91,7 +91,7 @@ export function FilterSheet({ open, onOpenChange }: FilterSheetProps) {
               <div className="space-y-3">
                 <Label className="text-sm font-semibold">Categories</Label>
                 <div className="grid grid-cols-2 gap-2">
-                  {categories.slice(0, 8).map((category) => {
+                  {categories.map((category) => {
                     const isSelected = selectedCategories.includes(category.id);
                     return (
                       <div
@@ -127,16 +127,11 @@ export function FilterSheet({ open, onOpenChange }: FilterSheetProps) {
                 min={0}
                 max={10000}
                 step={10}
-                value={[minPrice]}
-                onValueChange={([value]) => setMinPrice(value)}
-                className="w-full"
-              />
-              <Slider
-                min={0}
-                max={10000}
-                step={10}
-                value={[maxPrice]}
-                onValueChange={([value]) => setMaxPrice(value)}
+                value={[minPrice, maxPrice]}
+                onValueChange={([min, max]) => {
+                  setMinPrice(min);
+                  setMaxPrice(max);
+                }}
                 className="w-full"
               />
               <div className="flex items-center justify-between text-xs text-muted-foreground">

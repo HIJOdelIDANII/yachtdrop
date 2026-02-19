@@ -50,6 +50,7 @@ export function ProductSheet() {
   const closeSheet = useUIStore((s) => s.closeSheet);
   const addItem = useCartStore((s) => s.addItem);
   const [quantity, setQuantity] = useState(1);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { data: product, isLoading } = useProduct(
@@ -57,6 +58,13 @@ export function ProductSheet() {
   );
 
   const open = activeSheet === "product";
+
+  const handleGalleryScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const index = Math.round(el.scrollLeft / el.clientWidth);
+    setActiveImageIndex(index);
+  };
 
   const handleAdd = () => {
     if (!product) return;
@@ -68,6 +76,8 @@ export function ProductSheet() {
   const images = product?.images?.length ? product.images : product?.thumbnail ? [product.thumbnail] : [];
   const stock = product?.stockStatus ? STOCK_LABEL[product.stockStatus] : null;
   const hasDiscount = product?.originalPrice && product.originalPrice > (product?.price ?? 0);
+
+  if (!open && activeImageIndex !== 0) setActiveImageIndex(0);
 
   return (
     <BottomSheet open={open} onClose={closeSheet}>
@@ -84,6 +94,7 @@ export function ProductSheet() {
           {images.length > 0 && (
             <div
               ref={scrollRef}
+              onScroll={handleGalleryScroll}
               className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4"
             >
               {images.map((src, i) => (
@@ -112,7 +123,7 @@ export function ProductSheet() {
                 <span
                   key={i}
                   className={`h-1.5 rounded-full transition-all ${
-                    i === 0 ? "w-4 bg-foreground" : "w-1.5 bg-muted-foreground/30"
+                    i === activeImageIndex ? "w-4 bg-foreground" : "w-1.5 bg-muted-foreground/30"
                   }`}
                 />
               ))}
@@ -169,7 +180,7 @@ export function ProductSheet() {
                 {quantity}
               </span>
               <button
-                onClick={() => setQuantity((q) => q + 1)}
+                onClick={() => setQuantity((q) => Math.min(99, q + 1))}
                 className="flex h-10 w-10 items-center justify-center text-foreground active:bg-muted rounded-r-full transition-colors"
               >
                 <Plus className="h-4 w-4" />
