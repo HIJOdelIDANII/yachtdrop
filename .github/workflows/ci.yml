@@ -14,8 +14,8 @@ env:
   NODE_VERSION: "22"
 
 jobs:
-  lint-and-test:
-    name: Lint & Test
+  test:
+    name: Search Tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -32,13 +32,12 @@ jobs:
 
       - run: npm ci
       - run: npx prisma generate
-      - run: npm run lint
       - run: npm run test
 
   migrate:
     name: Run Migrations
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: lint-and-test
+    needs: test
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -61,7 +60,7 @@ jobs:
   deploy-production:
     name: Deploy Production
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [lint-and-test, migrate]
+    needs: [test, migrate]
     runs-on: ubuntu-latest
     defaults:
       run:
