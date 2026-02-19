@@ -36,7 +36,7 @@ export function BottomNav() {
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur-md safe-bottom">
       <div className="mx-auto grid max-w-lg grid-cols-4">
         {navItems.map(({ href, icon: Icon, label }) => {
-          const isActive = pathname === href;
+          const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
             <Link
               key={href}

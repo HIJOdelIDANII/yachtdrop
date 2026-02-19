@@ -20,14 +20,15 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import type { Product } from "@/types";
 import { formatPrice } from "@/lib/utils/price";
-import { Plus, Check } from "lucide-react";
-import { useCartStore } from "@/store/cart.store";
-import { useUIStore } from "@/store/ui.store";
+import { ArrowRight } from "lucide-react";
+import { useProductCardActions } from "@/lib/hooks/useProductCardActions";
+import { FloatingAddButton } from "./FloatingAddButton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import { memo, useState, useCallback, type ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 
 interface ProductRowProps {
   title: string;
@@ -35,6 +36,7 @@ interface ProductRowProps {
   products: Product[] | undefined;
   isLoading: boolean;
   badge?: (product: Product) => string | null;
+  seeAllHref?: string;
 }
 
 export function ProductRow({
@@ -43,6 +45,7 @@ export function ProductRow({
   products,
   isLoading,
   badge,
+  seeAllHref,
 }: ProductRowProps) {
   if (!isLoading && (!products || products.length === 0)) return null;
 
@@ -53,10 +56,13 @@ export function ProductRow({
           {icon}
           {title}
         </h2>
-        {products && products.length > 4 && (
-          <span className="text-xs font-medium text-muted-foreground">
-            {products.length} items
-          </span>
+        {seeAllHref && products && products.length > 0 && (
+          <Link
+            href={seeAllHref}
+            className="flex items-center gap-0.5 text-xs font-medium text-muted-foreground active:text-foreground transition-colors"
+          >
+            See all <ArrowRight className="h-3 w-3" />
+          </Link>
         )}
       </div>
 
@@ -93,21 +99,8 @@ interface RowCardProps {
 }
 
 const RowCard = memo(function RowCard({ product, badge, index }: RowCardProps) {
-  const addItem = useCartStore((s) => s.addItem);
-  const openSheet = useUIStore((s) => s.openSheet);
-  const [added, setAdded] = useState(false);
-
+  const { added, handleAdd, handleOpen } = useProductCardActions(product);
   const badgeText = badge?.(product);
-
-  const handleAdd = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      addItem(product);
-      setAdded(true);
-      setTimeout(() => setAdded(false), 600);
-    },
-    [addItem, product]
-  );
 
   return (
     <motion.div
@@ -115,7 +108,7 @@ const RowCard = memo(function RowCard({ product, badge, index }: RowCardProps) {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35, delay: Math.min(index * 0.06, 0.4), ease: "easeOut" }}
       className="w-[140px] shrink-0 cursor-pointer active:scale-[0.97] transition-transform duration-100"
-      onClick={() => openSheet("product", product.id)}
+      onClick={handleOpen}
     >
       <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
         {product.thumbnail ? (
@@ -140,22 +133,12 @@ const RowCard = memo(function RowCard({ product, badge, index }: RowCardProps) {
           </span>
         )}
 
-        {/* Floating + button */}
-        <button
-          className={`absolute bottom-1.5 right-1.5 flex h-7 w-7 items-center justify-center rounded-full shadow-md transition-all duration-150 ${
-            added
-              ? "bg-green-500 text-white scale-110"
-              : "bg-white text-foreground active:scale-90 dark:bg-card"
-          }`}
+        <FloatingAddButton
+          added={added}
+          size="sm"
           onClick={handleAdd}
-          aria-label={`Add ${product.name} to cart`}
-        >
-          {added ? (
-            <Check className="h-3.5 w-3.5" strokeWidth={3} />
-          ) : (
-            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-          )}
-        </button>
+          label={`Add ${product.name} to cart`}
+        />
       </div>
 
       <div className="px-0.5 pt-1.5">
