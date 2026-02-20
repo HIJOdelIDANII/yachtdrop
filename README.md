@@ -1,33 +1,71 @@
 # YachtDrop
 
-Order boat parts as easily as ordering food delivery. A mobile-first online chandlery marketplace where yacht crews order supplies for delivery to their berth or pickup from the marina.
+<p align="center">
+  <strong>Order boat parts as easily as ordering food delivery.</strong>
+</p>
 
-**Live:** [yachtdrop.vercel.app](https://yachtdrop.vercel.app)
+<p align="center">
+  A mobile-first online chandlery marketplace where yacht crews browse marine supplies, get AI-powered recommendations, and have parts delivered directly to their berth — or pick them up at the nearest marina.
+</p>
 
-## Stack
+<p align="center">
+  <a href="https://yachtdrop.vercel.app"><strong>Live Demo →</strong></a>
+</p>
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 16 (App Router), React 19, TypeScript 5 |
-| Styling | TailwindCSS 4, Framer Motion 12, Radix UI, shadcn/ui |
-| State | TanStack Query 5 (server), Zustand 5 (client) |
-| Database | PostgreSQL (Azure) with Prisma 7, pg_trgm + tsvector FTS |
-| AI | Azure AI Services — GPT-4o-mini (chat), Phi-4-mini (search) |
-| Maps | Leaflet + OpenStreetMap Overpass API |
-| Auth | Clerk |
-| Scraper | Python 3, BeautifulSoup, 5 concurrent workers |
-| Testing | Vitest, MSW, Playwright |
-| CI/CD | GitHub Actions → Vercel |
-| Infra | Vercel (app), Azure PostgreSQL (data), Azure AI (inference) |
+---
+
+## App Preview
+
+<p align="center">
+  <img src="images-readme/home.png" width="200" alt="Home — hero banner, category chips, trending products" />
+  &nbsp;
+  <img src="images-readme/browse.png" width="200" alt="Browse — category tabs, AI bundles, product cards with discounts" />
+  &nbsp;
+  <img src="images-readme/chat-page.png" width="200" alt="AI Chat — conversational assistant recommending cleaning supplies with product cards" />
+</p>
+
+<p align="center">
+  <img src="images-readme/checkout-page.png" width="200" alt="Cart — slide-up drawer with delivery/pickup toggle and checkout button" />
+  &nbsp;
+  <img src="images-readme/map.png" width="200" alt="Checkout — interactive marina map with search and delivery notes" />
+</p>
+
+---
+
+## About the Project
+
+YachtDrop was built for the **Marine NanoTech Hackathon**. The brief: create a working MVP that pulls live product data from [nautichandler.com](https://nautichandler.com) and delivers an app-like shopping experience entirely in the browser.
+
+**The problem:** Yacht crews need parts fast. They're on deck, one hand free, patchy Wi-Fi, and no time to navigate clunky desktop catalogs.
+
+**The solution:** A PWA that feels like Uber Eats for marine supplies — card-based browsing, AI-powered search, conversational shopping assistant, and marina delivery with an interactive map.
+
+---
+
+## Key Features
+
+| Feature | Description |
+|---------|-------------|
+| **Live product catalog** | Python scraper ingests 3,000+ products from nautichandler.com with prices, images, and metadata |
+| **AI-powered search** | Natural language queries processed by Phi-4-mini to extract keywords, then matched via full-text search + trigram |
+| **AI chat assistant** | GPT-4o-mini conversational shopping — ask "what do I need to clean my deck?" and get curated recommendations |
+| **Crew Essentials bundles** | Pre-built kits (Engine Care, Deck Maintenance, Safety Kit) for quick provisioning |
+| **Marina delivery** | Interactive Leaflet map with OpenStreetMap; search marinas, pick your berth, choose delivery or free pickup |
+| **App-like UX** | Bottom nav, slide-in drawers, skeleton loaders, smooth transitions, sticky cart bar |
+| **PWA support** | Installable, service worker caching for offline tolerance on patchy marina Wi-Fi |
+
+---
 
 ## Architecture
 
-Open [`architecture.drawio`](./architecture.drawio) at [app.diagrams.net](https://app.diagrams.net) for the full system diagram with Azure, framework, and library components.
+<p align="center">
+  <img src="images-readme/architecture-yachtdrop.png" width="800" alt="System architecture — Client Layer, Vercel API, Azure AI Services, PostgreSQL, Python Scraper, CI/CD" />
+</p>
 
 ### Data Flow
 
 ```
-nautichandler.com ──[Python scraper]──> Azure PostgreSQL
+nautichandler.com ──[Python scraper]──> Azure PostgreSQL (FTS + pg_trgm)
                                               │
                     ┌─────────────────────────┤
                     │                         │
@@ -36,18 +74,15 @@ nautichandler.com ──[Python scraper]──> Azure PostgreSQL
               ├─ React 19 SSR          └─ GPT-4o-mini (chat)
               └─ Edge caching
                     │
-              Mobile browser
-              (PWA-like UX)
+              Mobile browser (PWA)
 ```
 
 ### Search Pipeline
 
-Two paths depending on query complexity:
-
 **Keyword search** — short queries like "anchor rope":
 ```
 Input → 300ms debounce → /api/search/combined
-  → tsvector AND query → OR fallback → ILIKE fallback
+  → tsvector AND → OR fallback → ILIKE fallback
   → { products[], marinas[] }
 ```
 
@@ -61,12 +96,32 @@ Input → 300ms debounce → /api/search/ai
 ### Chat Pipeline
 
 ```
-User message → chitchat regex (skip planner for greetings)
+User message → chitchat detection (regex)
   → GPT-4o-mini planner → { queries, categories, priceMax }
-  → FTS retrieval → relevance filter (keyword count scoring)
-  → GPT-4o-mini responder (multi-turn history + [PRODUCTS])
+  → FTS retrieval → relevance scoring
+  → GPT-4o-mini responder (multi-turn history + product context)
   → { message, products[], marinas[] }
 ```
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 16 (App Router), React 19, TypeScript 5 |
+| Styling | TailwindCSS 4, Framer Motion 12, Radix UI, shadcn/ui |
+| State | TanStack Query 5 (server), Zustand 5 (client) |
+| AI | Azure AI Services — Phi-4-mini (search), GPT-4o-mini (chat) |
+| Database | PostgreSQL 16 on Azure Flexible Server, Prisma 7, pg_trgm + tsvector FTS |
+| Auth | Clerk |
+| Maps | Leaflet + OpenStreetMap + Overpass API |
+| Scraper | Python 3, BeautifulSoup, ThreadPoolExecutor (5 workers) |
+| Testing | Vitest, MSW, Playwright |
+| Hosting | Vercel (Edge + Serverless) |
+| CI/CD | GitHub Actions → Test → Migrate → Deploy |
+
+---
 
 ## Project Structure
 
@@ -74,110 +129,91 @@ User message → chitchat regex (skip planner for greetings)
 web/src/
 ├── app/
 │   ├── api/
-│   │   ├── search/combined/   Combined product + marina FTS
-│   │   ├── search/ai/         NL → Phi-4-mini → keywords → FTS
-│   │   ├── chat/              Two-model conversational AI
-│   │   ├── bundles/           AI crew essentials bundles
-│   │   ├── marinas/           Marina DB + Overpass fallback (24hr cache)
-│   │   ├── products/          CRUD, /trending, /offers
-│   │   ├── orders/            Order creation (5/min rate limit)
-│   │   └── categories/        Category list with counts
-│   ├── browse/                Catalog with category tabs
-│   ├── search/                Search with filters
-│   ├── chat/                  AI assistant
-│   ├── product/[id]/          Product detail
-│   └── orders/                Order history + tracking
+│   │   ├── search/combined/   # Combined product + marina FTS
+│   │   ├── search/ai/         # NL → Phi-4-mini → keywords → FTS
+│   │   ├── chat/              # Two-model conversational AI
+│   │   ├── bundles/           # AI crew essentials bundles
+│   │   ├── marinas/           # Marina DB + Overpass fallback (24hr cache)
+│   │   ├── products/          # CRUD, /trending, /offers
+│   │   ├── orders/            # Order creation (5/min rate limit)
+│   │   └── categories/        # Category list with counts
+│   ├── browse/                # Catalog with category tabs
+│   ├── search/                # Search with filters
+│   ├── chat/                  # AI assistant
+│   ├── product/[id]/          # Product detail
+│   └── orders/                # Order history
 ├── components/
-│   ├── search/                SearchBar, SearchResults, Autosuggest
-│   ├── product/               ProductCard, ProductRow, BundleCard
-│   ├── cart/                  CartBar, CartDrawer, CartItem
-│   ├── checkout/              CheckoutSheet (delivery/pickup, marina)
-│   ├── chat/                  ChatMessage, ChatBubble
-│   ├── category/              CategoryGrid (home), CategoryTabs (browse)
-│   ├── layout/                AppShell, BottomNav, Providers
-│   └── ui/                    shadcn (do not edit manually)
+│   ├── search/                # SearchBar, SearchResults, Autosuggest
+│   ├── product/               # ProductCard, ProductRow, BundleCard
+│   ├── cart/                  # CartBar, CartDrawer, CartItem
+│   ├── checkout/              # CheckoutSheet (delivery/pickup, marina map)
+│   ├── chat/                  # ChatMessage, ChatBubble
+│   ├── category/              # CategoryGrid (home), CategoryTabs (browse)
+│   ├── layout/                # AppShell, BottomNav, Providers
+│   └── ui/                    # shadcn (auto-generated)
 ├── lib/
-│   ├── hooks/                 useCombinedSearch, useFilteredProducts, useBundles
-│   ├── bundles/               Static bundle definitions
-│   ├── ai.ts                  Azure AI client
-│   ├── prisma.ts              Prisma singleton
-│   └── env.ts                 APP_ENV detection
-├── store/                     Zustand: cart, filter, chat, ui
-├── types/index.ts             All TypeScript types
-└── test/                      MSW mocks, fixtures, e2e specs
+│   ├── hooks/                 # useCombinedSearch, useFilteredProducts, useBundles
+│   ├── bundles/               # Static bundle definitions
+│   ├── ai.ts                  # Azure AI client
+│   ├── prisma.ts              # Prisma singleton
+│   └── env.ts                 # APP_ENV detection
+├── store/                     # Zustand: cart, filter, chat, ui
+├── types/index.ts             # All TypeScript types
+└── test/                      # MSW mocks, fixtures, e2e specs
 
 scraper/
-├── main.py                    Multi-worker orchestration (ThreadPoolExecutor)
-├── product.py                 HTML + JSON-LD parsing, image extraction
-├── sitemap.py                 Sitemap XML category discovery
-├── db.py                      Bulk INSERT ON CONFLICT, soft deletes
-├── clean.py                   Dedup, normalization, image validation
-└── config.py                  Rate limits (3s), retries (3), backoff (2x)
+├── main.py                    # Multi-worker orchestration
+├── product.py                 # HTML + JSON-LD parsing
+├── sitemap.py                 # Sitemap XML category discovery
+├── db.py                      # Bulk INSERT ON CONFLICT
+├── clean.py                   # Dedup, normalization, image validation
+└── config.py                  # Rate limits, retries, backoff
 ```
 
-## Database
+---
 
-PostgreSQL with full-text search:
+## Getting Started
 
-- **tsvector** column with GIN index, maintained by trigger on INSERT/UPDATE
-- **pg_trgm** for fuzzy similarity matching
-- FTS fallback chain: AND query → OR query → ILIKE
-- Bulk writes: `INSERT ... ON CONFLICT DO NOTHING` with UNNEST arrays
-- Soft deletes: products not seen in scrape marked `available=FALSE`
+```bash
+# Clone and install
+git clone https://github.com/your-username/yachtdrop.git
+cd yachtdrop/web
+npm install
 
-| Table | Purpose |
-|-------|---------|
-| `products` | 2000+ marine parts with prices, images, FTS vectors |
-| `categories` | 40+ categories with slugs and product counts |
-| `marinas` | Cached marina data from OpenStreetMap |
-| `orders` | Order management with status enum |
-| `order_items` | Line items with quantity and unit pricing |
-| `order_events` | Status change timeline |
-| `scraper_runs` | Scraper execution history |
+# Configure environment
+cp .env.example .env.local
+# Fill in: DATABASE_URL, AZURE_AI_*, CLERK_*
 
-## AI Integration
+# Set up database
+npx prisma generate
+npm run migrate:dev
 
-Azure AI Services (Sweden Central), two-model architecture:
-
-| Model | Deployment | Role |
-|-------|-----------|------|
-| Phi-4-mini | `phi-4-mini` | Keyword extraction from natural language queries |
-| GPT-4o-mini | `gpt-4o-mini` | Chat planner (intent) + conversational responder |
-
-Auth: `api-key` header (not Bearer). Endpoint:
-```
-{AZURE_AI_ENDPOINT}/openai/deployments/{model}/chat/completions?api-version=2024-10-21
+# Run
+npm run dev
 ```
 
-## Scraper
+Open [http://localhost:3000](http://localhost:3000).
 
-Python multi-worker scraper for nautichandler.com:
+### Available Scripts
 
-1. Parse sitemap.xml for category URLs
-2. Distribute categories across 5 concurrent threads
-3. Extract: name, SKU, price, images, brand, weight, stock status
-4. Clean: HTML decode, price normalize, dedup, image validate
-5. Bulk upsert to PostgreSQL with conflict handling
-6. Rate limited: 3s delay, exponential backoff on failure
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Dev server on :3000 |
+| `npm run test` | Vitest unit/integration tests |
+| `npm run test:e2e` | Playwright E2E tests |
+| `npm run migrate:dev` | Run migrations (local) |
+| `npm run migrate:prod` | Run migrations (Azure prod) |
+| `npx prisma generate` | Regenerate Prisma client |
+
+### Scraper
 
 ```bash
 cd scraper
-python main.py        # Full scrape
-python clean.py       # Clean + normalize existing data
+python main.py    # Full scrape (~3000 products)
+python clean.py   # Clean + normalize existing data
 ```
 
-## Development
-
-```bash
-cd web
-npm install
-npm run dev           # Dev server :3000
-npm run test          # Vitest unit/integration
-npm run test:e2e      # Playwright headless
-npm run migrate:dev   # Migrate local DB
-npm run migrate:prod  # Migrate Azure prod
-npx prisma generate   # Regen client after schema change
-```
+---
 
 ## Environment Variables
 
@@ -185,14 +221,14 @@ npx prisma generate   # Regen client after schema change
 |----------|-------|-------------|
 | `DATABASE_URL` | Server | PostgreSQL connection string |
 | `NEXT_PUBLIC_APP_ENV` | Public | `development` / `preview` / `production` |
-| `NEXT_PUBLIC_APP_URL` | Public | Base URL |
-| `NEXT_PUBLIC_DELIVERY_FEE` | Public | Delivery cost in EUR (default 5.00) |
 | `AZURE_AI_ENDPOINT` | Server | Azure AI Services base URL |
 | `AZURE_AI_API_KEY` | Server | Azure AI API key |
 | `AZURE_AI_DEPLOYMENT` | Server | Phi-4-mini deployment name |
 | `AZURE_AI_CHAT_DEPLOYMENT` | Server | GPT-4o-mini deployment name |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Public | Clerk auth |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Public | Clerk auth publishable key |
 | `CLERK_SECRET_KEY` | Server | Clerk server secret |
+
+---
 
 ## CI/CD
 
@@ -202,31 +238,8 @@ GitHub Actions on push to `main`:
 2. **Migrate** — `prisma migrate deploy` to Azure PostgreSQL
 3. **Deploy** — Vercel CLI production deploy
 
-## UX Patterns
-
-Modeled after Uber Eats mobile:
-
-- Bottom tab navigation (Home, Browse, Search, AI Chat, Orders)
-- Card-based browsing with floating quick-add buttons
-- Horizontal scroll carousels for trending and offers
-- Slide-in drawers for cart and checkout
-- Skeleton loaders during data fetches
-- Glassmorphism hero with search shortcut
-- Dark/light theme toggle
-- Staggered entrance animations (Framer Motion)
-
-## Bundles
-
-5 AI crew essentials bundles, auto-populated from inventory:
-
-| Bundle | Keywords |
-|--------|----------|
-| Weekend Cruise Kit | sunscreen, rope, fender, cooler |
-| Safety Essentials | life jacket, fire extinguisher, flare, first aid |
-| Docking Package | dock line, fender, cleat, boat hook |
-| Engine Care | oil, filter, spark plug, fuel, coolant |
-| Deck Maintenance | cleaner, polish, wax, brush, teak |
+---
 
 ## License
 
-Private — Hackathon project for Marine Nanotech.
+Private — Hackathon project for Marine NanoTech.
