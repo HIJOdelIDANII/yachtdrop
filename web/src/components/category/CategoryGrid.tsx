@@ -26,32 +26,90 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Anchor,
-  Wrench,
-  Lightbulb,
-  Shield,
-  Compass,
-  Paintbrush,
+  Zap,
+  ShieldCheck,
   Cable,
-  LifeBuoy,
+  Sofa,
+  CircleDot,
+  Paintbrush,
+  Ribbon,
+  ArrowDownUp,
+  FlaskConical,
+  Ship,
   Gauge,
-  Sailboat,
+  Link,
+  BatteryCharging,
+  Plug,
+  Wrench,
+  Waves,
+  HardHat,
+  Thermometer,
+  ShoppingBasket,
+  CircuitBoard,
+  Droplets,
+  Shirt,
+  LifeBuoy,
+  Disc,
+  Wind,
+  Flame,
+  Activity,
+  Magnet,
+  Compass,
+  Radio,
+  Fuel,
+  Bolt,
+  Cog,
+  LayoutGrid,
   type LucideIcon,
 } from "lucide-react";
 
-const ICON_MAP: Record<string, LucideIcon> = {
-  anchor: Anchor,
-  wrench: Wrench,
-  lightbulb: Lightbulb,
-  shield: Shield,
-  compass: Compass,
-  paintbrush: Paintbrush,
-  cable: Cable,
-  "life-buoy": LifeBuoy,
-  gauge: Gauge,
-  sailboat: Sailboat,
+const SLUG_ICONS: Record<string, LucideIcon> = {
+  "anchoring-docking": Anchor,
+  "electrics": Zap,
+  "safety": ShieldCheck,
+  "electric-terminals": Cable,
+  "life-on-board": Sofa,
+  "hole-saws": CircleDot,
+  "other-painting-accessories": Paintbrush,
+  "adhesive-tapes": Ribbon,
+  "reductions": ArrowDownUp,
+  "solvents-converters-paint-removers": FlaskConical,
+  "outboard-motors": Ship,
+  "gas-springs": Gauge,
+  "shacklescarabiners": Link,
+  "batteries-accessories": BatteryCharging,
+  "connectors": Plug,
+  "electricity-accessories": CircuitBoard,
+  "mooring-lines": Waves,
+  "protective-equipment": HardHat,
+  "mooring-accessories": Anchor,
+  "sander-disks-slides": Disc,
+  "refrigeratorsfreezers": Thermometer,
+  "fitting": Wrench,
+  "baskets": ShoppingBasket,
+  "chargers-accessories": BatteryCharging,
+  "bases": CircuitBoard,
+  "hand-tools": Wrench,
+  "water-filters": Droplets,
+  "female-jackets": Shirt,
+  "fenders": LifeBuoy,
+  "tensioners": Gauge,
+  "sanders": Disc,
+  "pneumatic-tool-accessories": Wind,
+  "firefighting-equipment": Flame,
+  "motor-valves": Activity,
+  "absorbers": Magnet,
+  "instrument-systems": Compass,
+  "transducers": Activity,
+  "anchors": Anchor,
+  "telephony": Radio,
+  "gas": Fuel,
+  "fuses-fuse-holders": Bolt,
+  "tools-machines": Cog,
+  "motor": Ship,
 };
 
-const FALLBACK_ICON = Anchor;
+const FALLBACK_ICON = LayoutGrid;
 
 /**
  * Uber Eats-style category quick-links — circular icons in a horizontal scroll.
@@ -79,7 +137,7 @@ export function CategoryGrid() {
   return (
     <div className="no-scrollbar flex gap-3 overflow-x-auto px-4 py-1">
       {categories.slice(0, 10).map((cat, i) => {
-        const Icon = (cat.icon && ICON_MAP[cat.icon]) || FALLBACK_ICON;
+        const Icon = (cat.slug && SLUG_ICONS[cat.slug]) || FALLBACK_ICON;
 
         return (
           <motion.button
