@@ -24,7 +24,7 @@ import { CategoryGrid } from "@/components/category/CategoryGrid";
 import { ProductRow } from "@/components/product/ProductRow";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useTrendingProducts, useOffers } from "@/lib/hooks/useData";
-import { Search, TrendingUp, BadgePercent, ArrowRight } from "lucide-react";
+import { Search, TrendingUp, BadgePercent, ArrowRight, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function HomePage() {
@@ -43,7 +43,7 @@ export default function HomePage() {
           Uber Eats keeps the hero small so users reach content quickly without
           scrolling. The gradient overlay ensures text readability on any hero image.
           quality={75} enables Next.js image optimization (was 'unoptimized' before). */}
-      <section className="relative overflow-hidden min-h-[220px]">
+      <section className="relative overflow-hidden min-h-[260px]">
         <Image
           src="/brand/hero-bg.png"
           alt="YachtDrop hero"
@@ -69,7 +69,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-            className="text-xl font-bold text-white leading-tight">
+            className="text-2xl font-bold text-white leading-tight">
             Boat parts, delivered
             <br />
             <span className="text-[var(--color-ocean)]">to your berth</span>
@@ -81,6 +81,14 @@ export default function HomePage() {
             className="mt-1 text-sm text-white/60">
             Order marine supplies as easily as ordering food.
           </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.25, ease: "easeOut" }}
+            className="mt-1.5 flex items-center gap-1 text-xs text-white/40">
+            <MapPin className="h-3 w-3" />
+            Delivering to your marina
+          </motion.p>
 
           {/* Search bar — fake input (button), navigates to /search.
               This avoids mounting SearchBar + React Query autosuggest on home.
@@ -90,7 +98,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.3, ease: "easeOut" }}
             onClick={() => router.push("/search")}
-            className="mt-4 flex w-full items-center gap-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-3 text-left active:scale-[0.98] transition-transform"
+            className="mt-4 flex w-full items-center gap-2.5 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 px-4 py-3 text-left active:scale-[0.98] transition-transform"
           >
             <Search className="h-4 w-4 text-white/50" />
             <span className="text-sm text-white/50">Search parts, marinas...</span>
@@ -101,7 +109,7 @@ export default function HomePage() {
       {/* Category quick-links — Uber Eats uses circular icons here, not tabs.
           Tapping a category deep-links to /browse?category=ID so the browse page
           opens pre-filtered. This keeps home as a discovery surface, not a store. */}
-      <section className="py-4">
+      <section className="py-5">
         <div className="flex items-baseline justify-between px-4 mb-2">
           <h2 className="text-base font-bold text-foreground">Categories</h2>
           <Link
@@ -118,7 +126,7 @@ export default function HomePage() {
           Trending = recently scraped in-stock products (proxy for popularity).
           Offers = sorted by discount_percent DESC.
           Both use 5min staleTime since scraper runs are hours apart. */}
-      <div className="space-y-5 pb-6">
+      <div className="space-y-7 pb-6">
         <ProductRow
           icon={<TrendingUp className="h-4 w-4 text-[var(--color-ocean)]" />}
           title="Trending Now"
@@ -133,7 +141,7 @@ export default function HomePage() {
           isLoading={offersLoading}
           seeAllHref="/browse"
           badge={(p) =>
-            p.discountPercent && p.discountPercent > 0
+            p.discountPercent && p.discountPercent > 0 && p.discountPercent < 100
               ? `-${p.discountPercent}%`
               : null
           }
@@ -145,7 +153,7 @@ export default function HomePage() {
       <section className="px-4 pb-8">
         <Link
           href="/browse"
-          className="flex items-center justify-center gap-2 rounded-2xl border border-border bg-card py-4 text-sm font-semibold text-foreground active:bg-muted transition-colors"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--color-navy)] to-[var(--color-ocean)] py-4 text-sm font-semibold text-white active:opacity-90 transition-opacity"
         >
           Browse all products
           <ArrowRight className="h-4 w-4" />
