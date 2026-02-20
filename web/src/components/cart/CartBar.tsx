@@ -17,19 +17,23 @@
  */
 "use client";
 
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/cart.store";
 import { useUIStore } from "@/store/ui.store";
 import { useHydrated } from "@/lib/hooks/useHydrated";
 import { formatPrice } from "@/lib/utils/price";
+import { Truck, MapPin } from "lucide-react";
 
 export function CartBar() {
+  const pathname = usePathname();
   const hydrated = useHydrated();
   const itemCount = useCartStore((s) => s.itemCount());
   const subtotal = useCartStore((s) => s.subtotal());
+  const deliveryType = useCartStore((s) => s.deliveryType);
   const openSheet = useUIStore((s) => s.openSheet);
 
-  if (!hydrated || itemCount === 0) return null;
+  if (!hydrated || itemCount === 0 || pathname === "/chat") return null;
 
   return (
     <AnimatePresence>
@@ -47,7 +51,16 @@ export function CartBar() {
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/20 text-xs font-bold">
             {itemCount}
           </span>
-          <span className="text-sm font-semibold">View Cart</span>
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-semibold">View Cart</span>
+            <span className="flex items-center gap-1 text-[10px] text-white/70">
+              {deliveryType === "DELIVERY" ? (
+                <><Truck className="h-2.5 w-2.5" /> Delivery</>
+              ) : (
+                <><MapPin className="h-2.5 w-2.5" /> Pickup</>
+              )}
+            </span>
+          </div>
         </div>
         <span className="text-sm font-bold">{formatPrice(subtotal)}</span>
       </motion.button>

@@ -20,6 +20,7 @@ export interface Product {
   currency: string;
   stockStatus: StockStatus;
   categoryId: string;
+  brand?: string;
   images: string[];
   thumbnail: string;
   available: boolean;
@@ -90,6 +91,8 @@ export interface Order {
   status: OrderStatus;
   deliveryType: DeliveryType;
   marinaId?: string;
+  marinaName?: string;
+  marinaCity?: string;
   berthNumber?: string;
   contactName: string;
   contactPhone: string;
@@ -101,6 +104,37 @@ export interface Order {
   estimatedTime?: string;
   createdAt: string;
   events?: OrderEvent[];
+}
+
+export interface Bundle {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  products: Product[];
+  totalPrice: number;
+}
+
+// Chat
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  products?: Product[];
+  marinas?: Marina[];
+  timestamp: number;
+}
+
+export interface ChatRequest {
+  messages: { role: "user" | "assistant"; content: string }[];
+  limit?: number;
+  previousProducts?: string[];
+}
+
+export interface ChatResponse {
+  message: string;
+  products: Product[];
+  marinas: Marina[];
 }
 
 export interface ApiResponse<T> {

@@ -1,76 +1,281 @@
-/**
- * CategoryTabs — Horizontal scrollable filter pills for /browse.
- *
- * DESIGN DECISIONS:
- * - These are FILTERS (select → products update), not navigation links.
- *   That's why they live on /browse and not on home. CategoryGrid on home
- *   uses icons and navigates; CategoryTabs here filters in-place.
- * - Replaced framer-motion layoutId animation with pure CSS transition-all.
- *   The old layoutId caused a layout recalculation on every tab switch which
- *   triggered a repaint cascade in the grid below. CSS bg transition is
- *   GPU-composited and doesn't affect layout.
- * - Active tab uses bg-foreground/text-background (inverted theme) for high
- *   contrast. Inactive uses bg-secondary which is subtle but visible.
- * - memo() prevents re-render when ProductGrid updates (e.g., infinite scroll
- *   loads more pages). Tabs only re-render when `selected` or categories change.
- * - "All" is always first, prepended to the API categories array.
- * - min-h-[34px] ensures 44px touch target (34px + padding) per Apple HIG.
- */
 "use client";
 
 import { useCategories } from "@/lib/hooks/useData";
 import { Skeleton } from "@/components/ui/skeleton";
-import { memo } from "react";
+import { memo, useState, useRef, useEffect, type ElementType } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Anchor,
+  Zap,
+  ShieldCheck,
+  Cable,
+  Sofa,
+  CircleDot,
+  Paintbrush,
+  Ribbon,
+  ArrowDownUp,
+  FlaskConical,
+  Ship,
+  Gauge,
+  Link,
+  BatteryCharging,
+  Plug,
+  Wrench,
+  Waves,
+  HardHat,
+  Thermometer,
+  ShoppingBasket,
+  CircuitBoard,
+  Droplets,
+  Shirt,
+  LifeBuoy,
+  Disc,
+  Wind,
+  Flame,
+  Activity,
+  Magnet,
+  Compass,
+  Radio,
+  Fuel,
+  Bolt,
+  Cog,
+  ChevronDown,
+  X,
+  LayoutGrid,
+  type LucideIcon,
+} from "lucide-react";
+
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  "anchoring-docking": Anchor,
+  "electrics": Zap,
+  "safety": ShieldCheck,
+  "electric-terminals": Cable,
+  "life-on-board": Sofa,
+  "hole-saws": CircleDot,
+  "other-painting-accessories": Paintbrush,
+  "adhesive-tapes": Ribbon,
+  "reductions": ArrowDownUp,
+  "solvents-converters-paint-removers": FlaskConical,
+  "outboard-motors": Ship,
+  "gas-springs": Gauge,
+  "shacklescarabiners": Link,
+  "batteries-accessories": BatteryCharging,
+  "connectors": Plug,
+  "electricity-accessories": CircuitBoard,
+  "mooring-lines": Waves,
+  "protective-equipment": HardHat,
+  "mooring-accessories": Anchor,
+  "sander-disks-slides": Disc,
+  "refrigeratorsfreezers": Thermometer,
+  "fitting": Wrench,
+  "baskets": ShoppingBasket,
+  "chargers-accessories": BatteryCharging,
+  "bases": CircuitBoard,
+  "hand-tools": Wrench,
+  "water-filters": Droplets,
+  "female-jackets": Shirt,
+  "fenders": LifeBuoy,
+  "tensioners": Gauge,
+  "sanders": Disc,
+  "pneumatic-tool-accessories": Wind,
+  "firefighting-equipment": Flame,
+  "motor-valves": Activity,
+  "absorbers": Magnet,
+  "instrument-systems": Compass,
+  "transducers": Activity,
+  "anchors": Anchor,
+  "telephony": Radio,
+  "gas": Fuel,
+  "fuses-fuse-holders": Bolt,
+  "tools-machines": Cog,
+  "motor": Ship,
+};
+
+function getCategoryIcon(slug: string): LucideIcon {
+  return CATEGORY_ICONS[slug] || LayoutGrid;
+}
 
 interface CategoryTabsProps {
   selected: string | null;
   onSelect: (id: string | null) => void;
 }
 
+const MIN_PRODUCTS = 5;
+
 export const CategoryTabs = memo(function CategoryTabs({
   selected,
   onSelect,
 }: CategoryTabsProps) {
   const { data: categories, isLoading } = useCategories();
+  const [showAll, setShowAll] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const filtered = categories?.filter((c) => c.productCount >= MIN_PRODUCTS) ?? [];
+  const topCategories = filtered.slice(0, 12);
+  const hasMore = filtered.length > 12;
+
+  const selectedCat = filtered.find((c) => c.id === selected);
+  const selectedInTop = topCategories.some((c) => c.id === selected);
+
+  useEffect(() => {
+    if (selected && scrollRef.current) {
+      const btn = scrollRef.current.querySelector(`[data-cat-id="${selected}"]`);
+      if (btn) {
+        btn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+      }
+    }
+  }, [selected]);
 
   if (isLoading) {
     return (
-      <div className="no-scrollbar flex gap-1.5 overflow-x-auto px-4 py-2.5">
+      <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-2.5">
         {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-8 w-20 shrink-0 rounded-full" />
+          <Skeleton key={i} className="h-9 w-24 shrink-0 rounded-full" />
         ))}
       </div>
     );
   }
 
-  const allTabs = [
-    { id: null, name: "All", count: null },
-    ...(categories?.map((c) => ({ id: c.id, name: c.name, count: c.productCount })) ?? []),
-  ];
-
   return (
-    <div className="no-scrollbar flex gap-1.5 overflow-x-auto px-4 py-2.5">
-      {allTabs.map((tab) => {
-        const isActive = selected === tab.id;
-        return (
+    <>
+      {/* Horizontal pills */}
+      <div ref={scrollRef} className="no-scrollbar flex gap-1.5 overflow-x-auto px-4 py-2.5">
+        <Pill
+          label="All"
+          icon={LayoutGrid}
+          count={null}
+          isActive={!selected}
+          onClick={() => { onSelect(null); setShowAll(false); }}
+        />
+        {topCategories.map((cat) => (
+          <Pill
+            key={cat.id}
+            dataCatId={cat.id}
+            label={cat.name}
+            icon={getCategoryIcon(cat.slug)}
+            count={cat.productCount}
+            isActive={selected === cat.id}
+            onClick={() => onSelect(cat.id)}
+          />
+        ))}
+        {selected && !selectedInTop && selectedCat && (
+          <Pill
+            dataCatId={selectedCat.id}
+            label={selectedCat.name}
+            icon={getCategoryIcon(selectedCat.slug)}
+            count={selectedCat.productCount}
+            isActive
+            onClick={() => onSelect(selectedCat.id)}
+          />
+        )}
+        {hasMore && (
           <button
-            key={tab.id ?? "all"}
-            onClick={() => onSelect(tab.id)}
-            className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-150 min-h-[34px] flex items-center gap-1 ${
-              isActive
+            onClick={() => setShowAll(!showAll)}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-[13px] font-medium transition-all duration-150 min-h-[34px] flex items-center gap-1.5 ${
+              showAll
                 ? "bg-foreground text-background shadow-sm"
                 : "bg-secondary text-muted-foreground active:bg-secondary/80"
             }`}
           >
-            {tab.name}
-            {tab.count !== null && (
-              <span className={`text-[11px] ${isActive ? "text-background/70" : "text-muted-foreground/60"}`}>
-                {tab.count}
-              </span>
-            )}
+            More
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showAll ? "rotate-180" : ""}`} />
           </button>
-        );
-      })}
-    </div>
+        )}
+      </div>
+
+      {/* Expanded grid */}
+      <AnimatePresence>
+        {showAll && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="overflow-hidden border-t border-border"
+          >
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-between mb-2.5">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  All Categories
+                </p>
+                <button
+                  onClick={() => setShowAll(false)}
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {filtered.map((cat) => {
+                  const Icon = getCategoryIcon(cat.slug);
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        onSelect(cat.id);
+                        setShowAll(false);
+                      }}
+                      className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-all ${
+                        selected === cat.id
+                          ? "bg-foreground text-background"
+                          : "bg-secondary/60 text-foreground hover:bg-secondary"
+                      }`}
+                    >
+                      <Icon className={`h-4 w-4 shrink-0 ${
+                        selected === cat.id ? "text-background/70" : "text-muted-foreground"
+                      }`} />
+                      <span className="text-[13px] font-medium truncate flex-1">
+                        {cat.name}
+                      </span>
+                      <span className={`text-[11px] shrink-0 ${
+                        selected === cat.id ? "text-background/60" : "text-muted-foreground"
+                      }`}>
+                        {cat.productCount}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 });
+
+function Pill({
+  label,
+  icon: Icon,
+  count,
+  isActive,
+  onClick,
+  dataCatId,
+}: {
+  label: string;
+  icon: ElementType;
+  count: number | null;
+  isActive: boolean;
+  onClick: () => void;
+  dataCatId?: string;
+}) {
+  return (
+    <button
+      data-cat-id={dataCatId}
+      onClick={onClick}
+      className={`shrink-0 rounded-full px-3 py-1.5 text-[13px] font-medium transition-all duration-150 min-h-[34px] flex items-center gap-1.5 ${
+        isActive
+          ? "bg-foreground text-background shadow-sm"
+          : "bg-secondary text-muted-foreground active:bg-secondary/80"
+      }`}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+      {count !== null && (
+        <span className={`text-[11px] ${isActive ? "text-background/70" : "text-muted-foreground/60"}`}>
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}

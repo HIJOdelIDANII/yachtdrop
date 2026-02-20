@@ -20,12 +20,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Grid3X3, Search, Package } from "lucide-react";
+import { Home, Grid3X3, Search, Sparkles, Package } from "lucide-react";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/browse", icon: Grid3X3, label: "Browse" },
   { href: "/search", icon: Search, label: "Search" },
+  { href: "/chat", icon: Sparkles, label: "AI Chat" },
   { href: "/orders", icon: Package, label: "Orders" },
 ];
 
@@ -34,7 +35,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur-md safe-bottom">
-      <div className="mx-auto grid max-w-lg grid-cols-4">
+      <div className="mx-auto grid max-w-lg grid-cols-5">
         {navItems.map(({ href, icon: Icon, label }) => {
           const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
