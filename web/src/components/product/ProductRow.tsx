@@ -69,8 +69,8 @@ export function ProductRow({
       <div className="no-scrollbar flex gap-2.5 overflow-x-auto px-3 pb-1">
         {isLoading
           ? Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="w-[140px] shrink-0">
-                <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
+              <div key={i} className="w-[165px] shrink-0">
+                <Skeleton className="aspect-[3/4] w-full rounded-2xl" />
                 <div className="space-y-1 pt-2">
                   <Skeleton className="h-3 w-4/5" />
                   <Skeleton className="h-3 w-1/3" />
@@ -107,10 +107,10 @@ const RowCard = memo(function RowCard({ product, badge, index }: RowCardProps) {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35, delay: Math.min(index * 0.06, 0.4), ease: "easeOut" }}
-      className="w-[140px] shrink-0 cursor-pointer active:scale-[0.97] transition-transform duration-100"
+      className="w-[165px] shrink-0 cursor-pointer active:scale-[0.97] transition-transform duration-100"
       onClick={handleOpen}
     >
-      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
         {product.thumbnail ? (
           <Image
             src={product.thumbnail}
@@ -118,7 +118,7 @@ const RowCard = memo(function RowCard({ product, badge, index }: RowCardProps) {
             fill
             loading={index < 3 ? "eager" : "lazy"}
             className="object-cover"
-            sizes="140px"
+            sizes="165px"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-[10px] text-muted-foreground">
@@ -142,6 +142,11 @@ const RowCard = memo(function RowCard({ product, badge, index }: RowCardProps) {
       </div>
 
       <div className="px-0.5 pt-1.5">
+        {product.brand && (
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--color-ocean)] mb-0.5">
+            {product.brand}
+          </p>
+        )}
         <h3 className="line-clamp-2 text-[12px] font-medium leading-snug text-foreground">
           {product.name}
         </h3>
