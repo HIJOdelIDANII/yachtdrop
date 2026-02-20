@@ -73,7 +73,7 @@ export const ProductCard = memo(function ProductCard({
         )}
 
         {/* Discount pill — top left */}
-        {hasDiscount && product.discountPercent && (
+        {hasDiscount && product.discountPercent && product.discountPercent < 100 && (
           <span className="absolute top-2 left-2 rounded-md bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
             -{product.discountPercent}%
           </span>
@@ -97,6 +97,11 @@ export const ProductCard = memo(function ProductCard({
 
       {/* Text content — tight, Uber Eats style */}
       <div className="px-1 pt-2 pb-1">
+        {product.brand && (
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {product.brand}
+          </p>
+        )}
         <h3 className="line-clamp-2 text-[13px] font-medium leading-snug text-foreground">
           {product.name}
         </h3>

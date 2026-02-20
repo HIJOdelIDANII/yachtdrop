@@ -6,7 +6,7 @@ export async function GET() {
     const products = await prisma.product.findMany({
       where: {
         available: true,
-        discountPercent: { gt: 0 },
+        discountPercent: { gt: 0, lt: 100 },
         thumbnail: { not: null },
         price: { gt: 0 },
       },

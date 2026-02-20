@@ -169,7 +169,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               {formatPrice(product.originalPrice)}
             </span>
           )}
-          {hasDiscount && product.discountPercent && (
+          {hasDiscount && product.discountPercent && product.discountPercent < 100 && (
             <span className="rounded-md bg-red-500/10 px-1.5 py-0.5 text-xs font-bold text-red-500">
               -{product.discountPercent}%
             </span>
