@@ -20,7 +20,6 @@ interface SearchBarProps {
   showSuggestions?: boolean;
   externalQuery?: string;
   onQueryChange?: (query: string) => void;
-  /** Pre-fetched results from parent — avoids duplicate requests */
   searchResults?: Product[];
   marinas?: Marina[];
   isLoading?: boolean;
@@ -51,7 +50,6 @@ export function SearchBar({
   const [focused, setFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
 
-  // Use parent-provided results if available; otherwise fetch locally (standalone usage)
   const activeQuery = externalQuery ?? debouncedQuery;
   const localSearch = useCombinedSearch(
     externalSearchResults ? "" : activeQuery
@@ -70,7 +68,6 @@ export function SearchBar({
     clearAll: clearAllRecent,
   } = useRecentSearches();
 
-  // Build unified suggestion list
   const suggestions = useMemo<Suggestion[]>(() => {
     if (!isReady && !externalQuery) return [];
     const activeQuery = externalQuery ?? debouncedQuery;
@@ -78,7 +75,6 @@ export function SearchBar({
 
     const items: Suggestion[] = [];
 
-    // Category matches
     if (categories) {
       categories
         .filter((c) =>
@@ -96,7 +92,6 @@ export function SearchBar({
         );
     }
 
-    // Marina matches
     if (marinas) {
       marinas.slice(0, 4).forEach((m) => {
         const dist =
@@ -119,7 +114,6 @@ export function SearchBar({
       });
     }
 
-    // Product matches
     if (searchResults) {
       searchResults.slice(0, 6).forEach((p) =>
         items.push({
@@ -226,7 +220,6 @@ export function SearchBar({
           }}
           onFocus={() => setFocused(true)}
           onBlur={() => {
-            // Delay to allow click on suggestions
             setTimeout(() => setFocused(false), 150);
           }}
           onKeyDown={handleKeyDown}

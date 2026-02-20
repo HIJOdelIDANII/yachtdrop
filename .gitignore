@@ -42,3 +42,8 @@ internal_docs/
 .playwright-mcp/
 web/playwright-report/
 web/test-results/
+.claude
+CLAUDE.md
+.vercel
+
+x-screen-shot/

@@ -61,6 +61,9 @@ def ensure_tables(conn):
         for col, typ in [
             ("sku", "TEXT"),
             ("last_seen_at", "TIMESTAMPTZ DEFAULT NOW()"),
+            ("brand", "TEXT"),
+            ("weight", "DECIMAL(8,3)"),
+            ("tags", "TEXT[] DEFAULT '{}'"),
         ]:
             cur.execute(f"""
                 DO $$ BEGIN
@@ -90,12 +93,14 @@ def upsert_product(conn, data, category_id=None):
                 id, external_id, sku, name, slug, description, short_desc,
                 price, original_price, discount_percent, currency,
                 stock_status, category_id, images, thumbnail,
-                available, source_url, scraped_at, last_seen_at
+                available, source_url, brand, weight, tags,
+                scraped_at, last_seen_at
             ) VALUES (
                 %s, %s, %s, %s, %s, %s, %s,
                 %s, %s, %s, %s,
                 %s, %s, %s, %s,
-                %s, %s, NOW(), NOW()
+                %s, %s, %s, %s, %s,
+                NOW(), NOW()
             )
             ON CONFLICT (external_id) DO UPDATE SET
                 name = EXCLUDED.name,
@@ -112,6 +117,9 @@ def upsert_product(conn, data, category_id=None):
                 thumbnail = EXCLUDED.thumbnail,
                 available = EXCLUDED.available,
                 source_url = EXCLUDED.source_url,
+                brand = EXCLUDED.brand,
+                weight = EXCLUDED.weight,
+                tags = EXCLUDED.tags,
                 scraped_at = NOW(),
                 last_seen_at = NOW()
             RETURNING id
@@ -124,6 +132,7 @@ def upsert_product(conn, data, category_id=None):
             data.get("stock_status", "IN_STOCK"), category_id,
             data.get("images", []), data.get("thumbnail"),
             data.get("available", True), data.get("source_url"),
+            data.get("brand"), data.get("weight"), data.get("tags", []),
         ))
         conn.commit()
         return cur.fetchone()[0]

@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Product, CartItem } from "@/types";
+import type { Product, CartItem, DeliveryType } from "@/types";
 
 interface CartState {
   items: CartItem[];
+  deliveryType: DeliveryType;
+  setDeliveryType: (type: DeliveryType) => void;
   addItem: (product: Product) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -16,6 +18,9 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      deliveryType: "DELIVERY" as DeliveryType,
+
+      setDeliveryType: (type: DeliveryType) => set({ deliveryType: type }),
 
       addItem: (product) =>
         set((state) => {

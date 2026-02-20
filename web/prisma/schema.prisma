@@ -34,6 +34,9 @@ model Product {
   stockStatus     String   @default("IN_STOCK") @map("stock_status")
   categoryId      String?  @map("category_id")
   category    Category? @relation(fields: [categoryId], references: [id])
+  brand       String?
+  weight      Decimal? @db.Decimal(8, 3)
+  tags        String[] @default([])
   images      String[]
   thumbnail   String?
   available   Boolean  @default(true)

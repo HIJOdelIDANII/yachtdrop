@@ -74,7 +74,7 @@ async function searchProducts(
         price::float, original_price::float AS "originalPrice",
         discount_percent AS "discountPercent", currency,
         stock_status AS "stockStatus", category_id AS "categoryId",
-        images, thumbnail, available
+        images, thumbnail, available, brand
       FROM products
       WHERE available = true
         AND price > 0
@@ -93,7 +93,7 @@ async function searchProducts(
         price::float, original_price::float AS "originalPrice",
         discount_percent AS "discountPercent", currency,
         stock_status AS "stockStatus", category_id AS "categoryId",
-        images, thumbnail, available
+        images, thumbnail, available, brand
       FROM products
       WHERE available = true
         AND price > 0

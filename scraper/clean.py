@@ -277,9 +277,44 @@ def update_counts(conn, dry_run=False):
     return 0
 
 
+BRAND_ALIASES = {
+    "3m marine": "3M",
+    "3m ": "3M",
+    "osculati spa": "Osculati",
+    "lalizas sa": "Lalizas",
+    "lalizas s.a.": "Lalizas",
+}
+
+
+def normalize_brands(conn, dry_run=False):
+    with conn.cursor() as cur:
+        cur.execute("SELECT id, brand FROM products WHERE brand IS NOT NULL")
+        rows = cur.fetchall()
+
+    updated = 0
+    for pid, brand in rows:
+        new_brand = brand.strip()
+        lower = new_brand.lower()
+        for alias, canonical in BRAND_ALIASES.items():
+            if lower == alias.lower() or lower.startswith(alias.lower()):
+                new_brand = canonical
+                break
+        if not new_brand or new_brand != brand:
+            updated += 1
+            if not dry_run:
+                with conn.cursor() as cur:
+                    cur.execute("UPDATE products SET brand=%s WHERE id=%s", (new_brand or None, pid))
+
+    if not dry_run:
+        conn.commit()
+    print(f"  [brands] Normalized {updated} brand names")
+    return updated
+
+
 STEPS = {
     "html":       ("Strip HTML entities", clean_html_entities),
     "names":      ("Normalize names", clean_names),
+    "brands":     ("Normalize brands", normalize_brands),
     "dedup":      ("Deduplicate products", deduplicate_products),
     "images":     ("Validate images", validate_images),
     "categories": ("Standardize categories", standardize_categories),

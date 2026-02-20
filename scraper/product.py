@@ -1,3 +1,4 @@
+import json
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -92,6 +93,53 @@ def parse_images(soup):
     return images
 
 
+STOP_WORDS = {
+    "the", "a", "an", "and", "or", "for", "with", "of", "in", "to", "on",
+    "is", "at", "by", "from", "up", "per", "set", "kit", "pcs", "mm", "cm",
+    "m", "kg", "l", "ml", "mt", "pc", "nr", "no", "x",
+}
+
+
+def parse_json_ld(soup):
+    brand = None
+    weight = None
+    for script in soup.select('script[type="application/ld+json"]'):
+        try:
+            data = json.loads(script.string or "")
+        except (json.JSONDecodeError, TypeError):
+            continue
+        if isinstance(data, list):
+            data = next((d for d in data if d.get("@type") == "Product"), None)
+        if not isinstance(data, dict) or data.get("@type") != "Product":
+            continue
+        b = data.get("brand")
+        if isinstance(b, dict):
+            brand = b.get("name")
+        elif isinstance(b, str):
+            brand = b
+        w = data.get("weight")
+        if isinstance(w, dict):
+            try:
+                weight = float(w.get("value", 0))
+            except (ValueError, TypeError):
+                weight = None
+    return brand, weight
+
+
+def generate_tags(name, categories, brand):
+    words = set()
+    for cat in categories:
+        for w in re.split(r"[\s&,/\-]+", cat.lower()):
+            if w and w not in STOP_WORDS and len(w) > 1:
+                words.add(w)
+    brand_lower = brand.lower() if brand else ""
+    for w in re.split(r"[\s\-/]+", name.lower()):
+        w = re.sub(r"[^\w]", "", w)
+        if w and w not in STOP_WORDS and len(w) > 2 and w != brand_lower and not w.isdigit():
+            words.add(w)
+    return sorted(words)[:15]
+
+
 def parse_categories(soup):
     breadcrumbs = soup.select("nav.breadcrumb ol li a span, .breadcrumb li a span")
     cats = []
@@ -158,6 +206,8 @@ def scrape_product(url, external_id):
     thumbnail = images[0] if images else None
     categories = parse_categories(soup)
     sku = parse_sku(soup)
+    brand, weight = parse_json_ld(soup)
+    tags = generate_tags(name, categories, brand)
 
     return {
         "external_id": external_id,
@@ -176,4 +226,7 @@ def scrape_product(url, external_id):
         "categories": categories,
         "source_url": url,
         "available": stock_status != "ON_DEMAND",
+        "brand": brand,
+        "weight": weight,
+        "tags": tags,
     }

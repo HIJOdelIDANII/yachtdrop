@@ -83,6 +83,11 @@ export const ProductTile = memo(function ProductTile({
 
       {/* Info */}
       <div className="min-w-0 flex-1">
+        {product.brand && (
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {product.brand}
+          </p>
+        )}
         <h3 className="line-clamp-1 text-[13px] font-medium leading-tight text-foreground">
           {product.name}
         </h3>

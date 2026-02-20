@@ -2,7 +2,8 @@
 
 import { useCategories } from "@/lib/hooks/useData";
 import { Skeleton } from "@/components/ui/skeleton";
-import { memo, useState, useRef, useEffect, type ElementType } from "react";
+import { memo, useState, useRef, useEffect, useCallback, type ElementType } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Anchor,
@@ -117,6 +118,8 @@ export const CategoryTabs = memo(function CategoryTabs({
   const selectedCat = filtered.find((c) => c.id === selected);
   const selectedInTop = topCategories.some((c) => c.id === selected);
 
+  const closeAll = useCallback(() => setShowAll(false), []);
+
   useEffect(() => {
     if (selected && scrollRef.current) {
       const btn = scrollRef.current.querySelector(`[data-cat-id="${selected}"]`);
@@ -125,6 +128,13 @@ export const CategoryTabs = memo(function CategoryTabs({
       }
     }
   }, [selected]);
+
+  useEffect(() => {
+    if (showAll) {
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = ""; };
+    }
+  }, [showAll]);
 
   if (isLoading) {
     return (
@@ -183,63 +193,76 @@ export const CategoryTabs = memo(function CategoryTabs({
         )}
       </div>
 
-      {/* Expanded grid */}
-      <AnimatePresence>
-        {showAll && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="overflow-hidden border-t border-border"
-          >
-            <div className="px-4 py-3">
-              <div className="flex items-center justify-between mb-2.5">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  All Categories
-                </p>
-                <button
-                  onClick={() => setShowAll(false)}
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-              <div className="grid grid-cols-2 gap-1.5">
-                {filtered.map((cat) => {
-                  const Icon = getCategoryIcon(cat.slug);
-                  return (
+      {/* Expanded grid overlay — portaled to body to escape stacking contexts */}
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {showAll && (
+            <motion.div
+              key="cat-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 z-50"
+            >
+              <div className="absolute inset-0 bg-black/40" onClick={closeAll} />
+              <motion.div
+                initial={{ y: -20 }}
+                animate={{ y: 0 }}
+                exit={{ y: -20 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="relative z-10 max-h-[70vh] overflow-y-auto overscroll-contain rounded-b-2xl bg-background shadow-xl"
+              >
+                <div className="px-4 py-3">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      All Categories
+                    </p>
                     <button
-                      key={cat.id}
-                      onClick={() => {
-                        onSelect(cat.id);
-                        setShowAll(false);
-                      }}
-                      className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-all ${
-                        selected === cat.id
-                          ? "bg-foreground text-background"
-                          : "bg-secondary/60 text-foreground hover:bg-secondary"
-                      }`}
+                      onClick={closeAll}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:bg-muted/80"
                     >
-                      <Icon className={`h-4 w-4 shrink-0 ${
-                        selected === cat.id ? "text-background/70" : "text-muted-foreground"
-                      }`} />
-                      <span className="text-[13px] font-medium truncate flex-1">
-                        {cat.name}
-                      </span>
-                      <span className={`text-[11px] shrink-0 ${
-                        selected === cat.id ? "text-background/60" : "text-muted-foreground"
-                      }`}>
-                        {cat.productCount}
-                      </span>
+                      <X className="h-4 w-4" />
                     </button>
-                  );
-                })}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 pb-2">
+                    {filtered.map((cat) => {
+                      const Icon = getCategoryIcon(cat.slug);
+                      return (
+                        <button
+                          key={cat.id}
+                          onClick={() => {
+                            onSelect(cat.id);
+                            setShowAll(false);
+                          }}
+                          className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-all ${
+                            selected === cat.id
+                              ? "bg-foreground text-background"
+                              : "bg-secondary/60 text-foreground hover:bg-secondary"
+                          }`}
+                        >
+                          <Icon className={`h-4 w-4 shrink-0 ${
+                            selected === cat.id ? "text-background/70" : "text-muted-foreground"
+                          }`} />
+                          <span className="text-[13px] font-medium truncate flex-1">
+                            {cat.name}
+                          </span>
+                          <span className={`text-[11px] shrink-0 ${
+                            selected === cat.id ? "text-background/60" : "text-muted-foreground"
+                          }`}>
+                            {cat.productCount}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 });

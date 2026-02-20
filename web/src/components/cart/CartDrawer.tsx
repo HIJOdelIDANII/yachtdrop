@@ -25,13 +25,16 @@ import { CartItem } from "./CartItem";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils/price";
-import { Anchor } from "lucide-react";
+import { Anchor, Truck, MapPin } from "lucide-react";
 import Link from "next/link";
+import type { DeliveryType } from "@/types";
 
 export function CartDrawer() {
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal());
   const clearCart = useCartStore((s) => s.clearCart);
+  const deliveryType = useCartStore((s) => s.deliveryType);
+  const setDeliveryType = useCartStore((s) => s.setDeliveryType);
   const activeSheet = useUIStore((s) => s.activeSheet);
   const closeSheet = useUIStore((s) => s.closeSheet);
   const openSheet = useUIStore((s) => s.openSheet);
@@ -63,6 +66,25 @@ export function CartDrawer() {
 
           <Separator />
 
+          {/* Delivery toggle */}
+          <div className="grid grid-cols-2 gap-1.5">
+            {(["DELIVERY", "PICKUP"] as DeliveryType[]).map((type) => (
+              <button
+                key={type}
+                onClick={() => setDeliveryType(type)}
+                className={`flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-medium transition-colors min-h-[40px] ${
+                  deliveryType === type
+                    ? "bg-[var(--color-ocean)]/10 text-[var(--color-ocean)] ring-1 ring-[var(--color-ocean)]"
+                    : "bg-muted/50 text-muted-foreground"
+                }`}
+              >
+                {type === "DELIVERY" ? <Truck className="h-3.5 w-3.5" /> : <MapPin className="h-3.5 w-3.5" />}
+                {type === "DELIVERY" ? "Delivery" : "Pickup"}
+                {type === "PICKUP" && <span className="text-[10px] text-green-600 dark:text-green-400">Free</span>}
+              </button>
+            ))}
+          </div>
+
           {/* Totals */}
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
@@ -71,7 +93,9 @@ export function CartDrawer() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Delivery</span>
-              <span className="text-xs text-muted-foreground">Calculated at checkout</span>
+              <span className="text-xs text-muted-foreground">
+                {deliveryType === "PICKUP" ? "Free (pickup)" : "Calculated at checkout"}
+              </span>
             </div>
           </div>
 

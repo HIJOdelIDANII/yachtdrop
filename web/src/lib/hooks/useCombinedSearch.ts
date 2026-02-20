@@ -8,11 +8,6 @@ interface CombinedSearchResult {
   marinas: Marina[];
 }
 
-/**
- * Single hook that fetches products + marinas from /api/search/combined.
- * Replaces the separate useSearch + useMarinas calls to eliminate
- * duplicate HTTP requests and decouple loading states.
- */
 export function useCombinedSearch(query: string) {
   const result = useQuery<CombinedSearchResult>({
     queryKey: ["search-combined", query],
@@ -25,7 +20,7 @@ export function useCombinedSearch(query: string) {
     },
     enabled: query.length >= 1,
     placeholderData: keepPreviousData,
-    staleTime: 2 * 60 * 1000, // 2 min
+    staleTime: 2 * 60 * 1000,
   });
 
   return {

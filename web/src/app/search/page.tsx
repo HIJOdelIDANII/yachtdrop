@@ -12,12 +12,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Sliders, Search } from "lucide-react";
 
+const CHIPS = ["Anchor", "Rope", "LED lights", "Fenders", "Bilge pump"];
+
 export default function SearchPage() {
   const [committedQuery, setCommittedQuery] = useState("");
   const [query, setQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
 
-  // Single combined fetch — no more duplicate requests
   const {
     products,
     marinas,
@@ -39,7 +40,6 @@ export default function SearchPage() {
   return (
     <PageTransition>
       <div className="min-h-screen bg-background">
-        {/* Sticky header with SearchBar */}
         <header className="sticky top-0 z-20 border-b border-border bg-card/90 px-4 py-3 backdrop-blur safe-top">
           <div className="flex items-center gap-2 mb-2">
             <h1 className="text-lg font-bold text-foreground flex-1">Search</h1>
@@ -63,7 +63,6 @@ export default function SearchPage() {
           />
         </header>
 
-        {/* Results */}
         <section className="px-4 py-4">
           {committedQuery.length >= 1 ? (
             <SearchResults
@@ -74,7 +73,7 @@ export default function SearchPage() {
               onMarinaSelect={handleMarinaSelect}
             />
           ) : (
-            <div className="py-12 text-center">
+            <div className="py-8 text-center">
               <Search className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
               <p className="text-sm font-medium text-foreground mb-1">
                 Find what you need
@@ -83,14 +82,14 @@ export default function SearchPage() {
                 Search for marine parts, marinas, or categories
               </p>
               <div className="flex flex-wrap justify-center gap-2">
-                {["Anchor", "Rope", "LED lights", "Fenders", "Bilge pump"].map((term) => (
+                {CHIPS.map((term) => (
                   <button
                     key={term}
                     onClick={() => {
                       setQuery(term);
                       setCommittedQuery(term);
                     }}
-                    className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground active:scale-95 transition-transform"
+                    className="rounded-full px-3 py-1.5 text-xs font-medium active:scale-95 transition-transform bg-muted text-foreground"
                   >
                     {term}
                   </button>

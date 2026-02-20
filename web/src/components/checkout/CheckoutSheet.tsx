@@ -16,20 +16,18 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Truck, MapPin, Loader2, Package } from "lucide-react";
 import { MarinaPicker } from "@/components/search/MarinaPicker";
-import type { Marina } from "@/types";
-
-type DeliveryType = "DELIVERY" | "PICKUP";
+import type { Marina, DeliveryType } from "@/types";
 
 export function CheckoutSheet() {
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal());
   const clearCart = useCartStore((s) => s.clearCart);
+  const deliveryType = useCartStore((s) => s.deliveryType);
+  const setDeliveryType = useCartStore((s) => s.setDeliveryType);
   const activeSheet = useUIStore((s) => s.activeSheet);
   const closeSheet = useUIStore((s) => s.closeSheet);
   const createOrder = useCreateOrder();
   const router = useRouter();
-
-  const [deliveryType, setDeliveryType] = useState<DeliveryType>("DELIVERY");
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
@@ -149,29 +147,32 @@ export function CheckoutSheet() {
   return (
     <BottomSheet open={open} onClose={handleClose} title="Checkout">
       <div className="space-y-5">
-        {/* Delivery type toggle */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* Delivery type toggle — segmented control with sliding indicator */}
+        <div className="relative grid grid-cols-2 rounded-2xl bg-muted/60 p-1">
+          <motion.div
+            className="absolute inset-y-1 w-[calc(50%-4px)] rounded-xl bg-[var(--color-ocean)] shadow-sm"
+            animate={{ x: deliveryType === "DELIVERY" ? 4 : "calc(100% + 4px)" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          />
           <button
             onClick={() => setDeliveryType("DELIVERY")}
-            className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-colors min-h-[44px] ${
-              deliveryType === "DELIVERY"
-                ? "border-[var(--color-ocean)] bg-[var(--color-ocean)]/10 text-[var(--color-ocean)]"
-                : "border-border text-muted-foreground"
+            className={`relative z-10 flex flex-col items-center gap-0.5 rounded-xl px-4 py-3 min-h-[56px] transition-colors ${
+              deliveryType === "DELIVERY" ? "text-white" : "text-muted-foreground"
             }`}
           >
-            <Truck className="h-4 w-4" />
-            Delivery
+            <Truck className="h-5 w-5" />
+            <span className="text-sm font-semibold">Delivery</span>
+            <span className="text-[10px] opacity-70">To your berth</span>
           </button>
           <button
             onClick={() => setDeliveryType("PICKUP")}
-            className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-colors min-h-[44px] ${
-              deliveryType === "PICKUP"
-                ? "border-[var(--color-ocean)] bg-[var(--color-ocean)]/10 text-[var(--color-ocean)]"
-                : "border-border text-muted-foreground"
+            className={`relative z-10 flex flex-col items-center gap-0.5 rounded-xl px-4 py-3 min-h-[56px] transition-colors ${
+              deliveryType === "PICKUP" ? "text-white" : "text-muted-foreground"
             }`}
           >
-            <MapPin className="h-4 w-4" />
-            Pickup
+            <MapPin className="h-5 w-5" />
+            <span className="text-sm font-semibold">Pickup</span>
+            <span className="text-[10px] opacity-70">From a marina</span>
           </button>
         </div>
 

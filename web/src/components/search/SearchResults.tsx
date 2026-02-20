@@ -24,7 +24,6 @@ export function SearchResults({
   products,
   marinas,
   isLoading,
-  isMarinasLoading,
   hasMore,
   isFetchingMore,
   onLoadMore,
@@ -32,7 +31,6 @@ export function SearchResults({
 }: SearchResultsProps) {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Infinite scroll observer
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || !hasMore || !onLoadMore) return;
@@ -48,19 +46,17 @@ export function SearchResults({
     return () => observer.disconnect();
   }, [hasMore, isFetchingMore, onLoadMore]);
 
-  // Only show full skeleton when products are still loading
   if (isLoading && products.length === 0) {
     return (
-      <div className="space-y-3">
-        {/* Skeleton tiles */}
+      <div className="space-y-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 rounded-xl border border-border bg-card p-2.5">
-            <Skeleton className="h-16 w-16 rounded-lg" />
+          <div key={i} className="flex items-center gap-3 rounded-xl bg-card p-2">
+            <Skeleton className="h-14 w-14 shrink-0 rounded-xl" />
             <div className="flex-1 space-y-1.5">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-3 w-1/3" />
+              <Skeleton className="h-3.5 w-3/4 rounded" />
+              <Skeleton className="h-3 w-1/4 rounded" />
             </div>
-            <Skeleton className="h-10 w-10 rounded-xl" />
+            <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
           </div>
         ))}
       </div>
@@ -87,7 +83,6 @@ export function SearchResults({
 
   return (
     <div className="space-y-4">
-      {/* Result count announcement for a11y */}
       <div aria-live="polite" className="sr-only">
         {products.length} product{products.length !== 1 ? "s" : ""} and{" "}
         {marinas.length} marina{marinas.length !== 1 ? "s" : ""} found
@@ -142,17 +137,16 @@ export function SearchResults({
               ))}
             </AnimatePresence>
 
-            {/* Infinite scroll loading */}
             {isFetchingMore && (
               <div className="space-y-2">
                 {Array.from({ length: 2 }).map((_, i) => (
-                  <div key={`skel-${i}`} className="flex items-center gap-3 rounded-xl border border-border bg-card p-2.5">
-                    <Skeleton className="h-16 w-16 rounded-lg" />
+                  <div key={`skel-${i}`} className="flex items-center gap-3 rounded-xl bg-card p-2">
+                    <Skeleton className="h-14 w-14 shrink-0 rounded-xl" />
                     <div className="flex-1 space-y-1.5">
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-3 w-1/3" />
+                      <Skeleton className="h-3.5 w-3/4 rounded" />
+                      <Skeleton className="h-3 w-1/4 rounded" />
                     </div>
-                    <Skeleton className="h-10 w-10 rounded-xl" />
+                    <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
                   </div>
                 ))}
               </div>

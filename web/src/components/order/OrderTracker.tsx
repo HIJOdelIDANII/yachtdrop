@@ -240,7 +240,16 @@ export function OrderTracker({ order }: OrderTrackerProps) {
               {/* Contact & delivery info */}
               <div className="space-y-1 text-xs text-muted-foreground">
                 <p>{order.contactName} · {order.contactPhone}</p>
-                {order.berthNumber && <p>Berth: {order.berthNumber}</p>}
+                {isDelivery && order.berthNumber && <p>Berth: {order.berthNumber}</p>}
+                {!isDelivery && order.marinaName && (
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="h-3 w-3 text-green-500" />
+                    <p>
+                      Pickup: <span className="font-medium text-foreground">{order.marinaName}</span>
+                      {order.marinaCity && `, ${order.marinaCity}`}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Order ID */}
