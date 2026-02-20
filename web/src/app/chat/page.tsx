@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Sparkles, Loader2, Trash2, ShoppingCart } from "lucide-react";
 import { useChatStore } from "@/store/chat.store";
@@ -28,6 +28,30 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const updateHeight = useCallback(() => {
+    const vv = window.visualViewport;
+    if (!containerRef.current || !vv) return;
+    const keyboardOffset = window.innerHeight - vv.height - vv.offsetTop;
+    const keyboardOpen = keyboardOffset > 50;
+    const navHeight = keyboardOpen ? 0 : 52;
+    containerRef.current.style.top = `${vv.offsetTop}px`;
+    containerRef.current.style.bottom = keyboardOpen ? `${keyboardOffset}px` : `${navHeight}px`;
+    containerRef.current.style.height = "auto";
+  }, []);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    updateHeight();
+    vv.addEventListener("resize", updateHeight);
+    vv.addEventListener("scroll", updateHeight);
+    return () => {
+      vv.removeEventListener("resize", updateHeight);
+      vv.removeEventListener("scroll", updateHeight);
+    };
+  }, [updateHeight]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -68,9 +92,12 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-[calc(100dvh-52px)] flex-col bg-background">
+    <div
+      ref={containerRef}
+      className="fixed inset-x-0 top-0 bottom-[52px] flex flex-col overflow-hidden bg-background transition-[height,transform] duration-150 ease-out"
+    >
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-border px-4 py-3">
+      <header className="flex shrink-0 items-center justify-between border-b border-border px-4 py-2.5">
         <div className="flex items-center gap-2.5">
           {hydrated && cartItemCount > 0 && (
             <button
@@ -163,8 +190,8 @@ export default function ChatPage() {
         )}
       </div>
 
-      {/* Input area */}
-      <div className="border-t border-border bg-background px-4 py-2">
+      {/* Input area — sticky bottom */}
+      <div className="sticky bottom-0 z-10 shrink-0 border-t border-border bg-background px-3 py-1.5">
         <form onSubmit={handleSubmit} className="flex items-end gap-2">
           <div className="relative flex-1">
             <textarea
@@ -174,7 +201,7 @@ export default function ChatPage() {
               onKeyDown={handleKeyDown}
               placeholder="Ask about marine supplies..."
               rows={1}
-              className="w-full resize-none rounded-2xl border border-border bg-muted/50 px-4 py-3 text-sm outline-none placeholder:text-muted-foreground focus:border-[var(--color-ocean)] focus:ring-1 focus:ring-[var(--color-ocean)] disabled:opacity-50"
+              className="w-full resize-none overflow-y-auto rounded-xl border border-border bg-muted/50 px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-[var(--color-ocean)] focus:ring-1 focus:ring-[var(--color-ocean)] disabled:opacity-50"
               disabled={isLoading}
               style={{ maxHeight: "120px" }}
             />
@@ -183,7 +210,7 @@ export default function ChatPage() {
             type="submit"
             disabled={!input.trim() || isLoading}
             whileTap={{ scale: 0.9 }}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-ocean)] text-white shadow-sm transition-all disabled:opacity-40"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-ocean)] text-white shadow-sm transition-all disabled:opacity-40 mb-0.5"
             aria-label="Send message"
           >
             <Send className="h-4 w-4" />
