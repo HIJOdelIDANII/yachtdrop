@@ -1,0 +1,263 @@
+<mxfile host="app.diagrams.net" modified="2026-02-20T00:00:00.000Z" agent="YachtDrop" version="24.0.0" type="device">
+  <diagram id="yachtdrop-arch" name="System Architecture">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- ==================== TITLE ==================== -->
+        <mxCell id="title" value="YachtDrop — System Architecture" style="text;html=1;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="450" y="20" width="500" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== USER LAYER (top) ==================== -->
+        <mxCell id="user-group" value="Client Layer" style="swimlane;startSize=25;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="620" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="browser" value="Mobile Browser&#xa;(PWA-like)" style="shape=mxgraph.azure.mobile;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=11;fontStyle=1;" vertex="1" parent="user-group">
+          <mxGeometry x="20" y="40" width="80" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="react" value="React 19&#xa;App Router" style="rounded=1;whiteSpace=wrap;fillColor=#61DAFB;fontColor=#000000;strokeColor=#61DAFB;fontSize=11;fontStyle=1;" vertex="1" parent="user-group">
+          <mxGeometry x="130" y="45" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="tanstack" value="TanStack&#xa;Query 5" style="rounded=1;whiteSpace=wrap;fillColor=#FF4154;fontColor=#ffffff;strokeColor=#FF4154;fontSize=11;fontStyle=1;" vertex="1" parent="user-group">
+          <mxGeometry x="250" y="45" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="zustand" value="Zustand 5&#xa;(cart, chat, UI)" style="rounded=1;whiteSpace=wrap;fillColor=#433D3C;fontColor=#ffffff;strokeColor=#433D3C;fontSize=11;fontStyle=1;" vertex="1" parent="user-group">
+          <mxGeometry x="370" y="45" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="framer" value="Framer&#xa;Motion 12" style="rounded=1;whiteSpace=wrap;fillColor=#FF0055;fontColor=#ffffff;strokeColor=#FF0055;fontSize=11;fontStyle=1;" vertex="1" parent="user-group">
+          <mxGeometry x="500" y="45" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="tailwind" value="TailwindCSS 4" style="rounded=1;whiteSpace=wrap;fillColor=#38BDF8;fontColor=#000000;strokeColor=#38BDF8;fontSize=10;fontStyle=1;" vertex="1" parent="user-group">
+          <mxGeometry x="130" y="110" width="90" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="shadcn" value="shadcn/ui" style="rounded=1;whiteSpace=wrap;fillColor=#18181B;fontColor=#ffffff;strokeColor=#18181B;fontSize=10;fontStyle=1;" vertex="1" parent="user-group">
+          <mxGeometry x="235" y="110" width="80" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="radix" value="Radix UI" style="rounded=1;whiteSpace=wrap;fillColor=#6E56CF;fontColor=#ffffff;strokeColor=#6E56CF;fontSize=10;fontStyle=1;" vertex="1" parent="user-group">
+          <mxGeometry x="330" y="110" width="80" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="leaflet" value="Leaflet&#xa;(maps)" style="rounded=1;whiteSpace=wrap;fillColor=#199900;fontColor=#ffffff;strokeColor=#199900;fontSize=10;fontStyle=1;" vertex="1" parent="user-group">
+          <mxGeometry x="425" y="110" width="75" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="clerk-ui" value="Clerk&#xa;(auth)" style="rounded=1;whiteSpace=wrap;fillColor=#6C47FF;fontColor=#ffffff;strokeColor=#6C47FF;fontSize=10;fontStyle=1;" vertex="1" parent="user-group">
+          <mxGeometry x="515" y="110" width="75" height="35" as="geometry"/>
+        </mxCell>
+        <!-- Arrows within client -->
+        <mxCell id="e-browser-react" style="edgeStyle=orthogonalEdgeStyle;rounded=1;" edge="1" source="browser" target="react" parent="user-group">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-react-tq" style="edgeStyle=orthogonalEdgeStyle;rounded=1;" edge="1" source="react" target="tanstack" parent="user-group">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-react-zu" style="edgeStyle=orthogonalEdgeStyle;rounded=1;" edge="1" source="react" target="zustand" parent="user-group">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== VERCEL / NEXT.JS LAYER ==================== -->
+        <mxCell id="vercel-group" value="Vercel — Next.js 16 Server" style="swimlane;startSize=25;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;fontStyle=1;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="330" width="620" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-search" value="/api/search/combined&#xa;FTS + marinas" style="shape=mxgraph.azure.cloud_service;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="vercel-group">
+          <mxGeometry x="15" y="40" width="110" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-ai-search" value="/api/search/ai&#xa;NL → keywords" style="shape=mxgraph.azure.cloud_service;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="vercel-group">
+          <mxGeometry x="140" y="40" width="110" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-chat" value="/api/chat&#xa;Two-model AI" style="shape=mxgraph.azure.cloud_service;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="vercel-group">
+          <mxGeometry x="265" y="40" width="110" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-products" value="/api/products&#xa;CRUD + trending" style="shape=mxgraph.azure.cloud_service;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="vercel-group">
+          <mxGeometry x="390" y="40" width="110" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-orders" value="/api/orders&#xa;rate limited" style="shape=mxgraph.azure.cloud_service;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="vercel-group">
+          <mxGeometry x="510" y="40" width="100" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-bundles" value="/api/bundles&#xa;crew essentials" style="shape=mxgraph.azure.cloud_service;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="vercel-group">
+          <mxGeometry x="15" y="115" width="110" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-marinas" value="/api/marinas&#xa;Overpass + cache" style="shape=mxgraph.azure.cloud_service;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="vercel-group">
+          <mxGeometry x="140" y="115" width="110" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-categories" value="/api/categories&#xa;with counts" style="shape=mxgraph.azure.cloud_service;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="vercel-group">
+          <mxGeometry x="265" y="115" width="110" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="prisma-box" value="Prisma 7&#xa;+ pg adapter" style="rounded=1;whiteSpace=wrap;fillColor=#2D3748;fontColor=#ffffff;strokeColor=#2D3748;fontSize=10;fontStyle=1;" vertex="1" parent="vercel-group">
+          <mxGeometry x="420" y="125" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="nextjs-label" value="TypeScript 5 · Node 22" style="text;fontSize=10;fontColor=#666666;align=right;" vertex="1" parent="vercel-group">
+          <mxGeometry x="470" y="175" width="140" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== AZURE AI SERVICES ==================== -->
+        <mxCell id="azure-ai-group" value="Azure AI Services (Sweden Central)" style="swimlane;startSize=25;fillColor=#FFF3E0;strokeColor=#E65100;fontSize=14;fontStyle=1;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="330" width="300" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="phi4" value="Phi-4-mini&#xa;&#xa;Search keyword&#xa;extraction" style="shape=mxgraph.azure.machine_learning;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=10;fontStyle=1;" vertex="1" parent="azure-ai-group">
+          <mxGeometry x="20" y="45" width="120" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="gpt4o" value="GPT-4o-mini&#xa;&#xa;Chat planner +&#xa;responder" style="shape=mxgraph.azure.machine_learning;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=10;fontStyle=1;" vertex="1" parent="azure-ai-group">
+          <mxGeometry x="160" y="45" width="120" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="azure-ai-auth" value="Auth: api-key header&#xa;API version: 2024-10-21&#xa;OpenAI-compatible endpoint" style="text;fontSize=9;fontColor=#E65100;align=center;" vertex="1" parent="azure-ai-group">
+          <mxGeometry x="30" y="140" width="240" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== AZURE POSTGRESQL ==================== -->
+        <mxCell id="db-group" value="Azure PostgreSQL" style="swimlane;startSize=25;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=14;fontStyle=1;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="610" width="620" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="db-icon" value="PostgreSQL&#xa;(sslmode=require)" style="shape=mxgraph.azure.sql_database_sql_azure;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=10;fontStyle=1;" vertex="1" parent="db-group">
+          <mxGeometry x="20" y="40" width="90" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl-products" value="products&#xa;2000+ items&#xa;tsvector + GIN" style="shape=mxgraph.azure.sql_database;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="db-group">
+          <mxGeometry x="140" y="35" width="85" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl-categories" value="categories&#xa;40+ slugs" style="shape=mxgraph.azure.sql_database;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="db-group">
+          <mxGeometry x="240" y="35" width="85" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl-marinas" value="marinas&#xa;OSM cached" style="shape=mxgraph.azure.sql_database;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="db-group">
+          <mxGeometry x="340" y="35" width="85" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl-orders" value="orders +&#xa;items + events" style="shape=mxgraph.azure.sql_database;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="db-group">
+          <mxGeometry x="440" y="35" width="85" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl-scraper" value="scraper_runs" style="shape=mxgraph.azure.sql_database;fillColor=#0078D4;fontColor=#ffffff;strokeColor=#0078D4;fontSize=9;fontStyle=1;" vertex="1" parent="db-group">
+          <mxGeometry x="540" y="35" width="70" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext-trgm" value="pg_trgm&#xa;(fuzzy match)" style="rounded=1;whiteSpace=wrap;fillColor=#4CAF50;fontColor=#ffffff;strokeColor=#4CAF50;fontSize=9;fontStyle=1;" vertex="1" parent="db-group">
+          <mxGeometry x="140" y="110" width="90" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext-fts" value="tsvector + GIN&#xa;(full-text search)" style="rounded=1;whiteSpace=wrap;fillColor=#4CAF50;fontColor=#ffffff;strokeColor=#4CAF50;fontSize=9;fontStyle=1;" vertex="1" parent="db-group">
+          <mxGeometry x="245" y="110" width="110" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext-uuid" value="uuid-ossp" style="rounded=1;whiteSpace=wrap;fillColor=#4CAF50;fontColor=#ffffff;strokeColor=#4CAF50;fontSize=9;fontStyle=1;" vertex="1" parent="db-group">
+          <mxGeometry x="370" y="110" width="80" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="fts-chain" value="FTS chain: AND → OR → ILIKE" style="text;fontSize=9;fontColor=#2E7D32;fontStyle=2;align=left;" vertex="1" parent="db-group">
+          <mxGeometry x="140" y="155" width="200" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== SCRAPER ==================== -->
+        <mxCell id="scraper-group" value="Python Scraper" style="swimlane;startSize=25;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=14;fontStyle=1;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="610" width="300" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="python" value="Python 3&#xa;BeautifulSoup" style="rounded=1;whiteSpace=wrap;fillColor=#306998;fontColor=#ffffff;strokeColor=#306998;fontSize=10;fontStyle=1;" vertex="1" parent="scraper-group">
+          <mxGeometry x="20" y="40" width="110" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="workers" value="ThreadPoolExecutor&#xa;5 concurrent workers" style="rounded=1;whiteSpace=wrap;fillColor=#306998;fontColor=#ffffff;strokeColor=#306998;fontSize=10;fontStyle=1;" vertex="1" parent="scraper-group">
+          <mxGeometry x="150" y="40" width="130" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="scraper-steps" value="1. Parse sitemap.xml&#xa;2. Distribute categories to workers&#xa;3. Extract: name, SKU, price, images, brand&#xa;4. Clean: dedup, normalize, validate&#xa;5. Bulk upsert ON CONFLICT&#xa;6. Soft delete stale products" style="text;fontSize=10;fontColor=#666666;align=left;verticalAlign=top;spacingLeft=5;" vertex="1" parent="scraper-group">
+          <mxGeometry x="20" y="95" width="260" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== EXTERNAL SERVICES ==================== -->
+        <mxCell id="ext-group" value="External Services" style="swimlane;startSize=25;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=14;fontStyle=1;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="80" width="300" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="nautic" value="nautichandler.com&#xa;(product source)" style="shape=mxgraph.azure.website_generic;fillColor=#7B1FA2;fontColor=#ffffff;strokeColor=#7B1FA2;fontSize=10;fontStyle=1;" vertex="1" parent="ext-group">
+          <mxGeometry x="20" y="40" width="120" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="overpass" value="Overpass API&#xa;(OpenStreetMap)" style="shape=mxgraph.azure.website_generic;fillColor=#7B1FA2;fontColor=#ffffff;strokeColor=#7B1FA2;fontSize=10;fontStyle=1;" vertex="1" parent="ext-group">
+          <mxGeometry x="160" y="40" width="120" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="clerk-svc" value="Clerk&#xa;(authentication)" style="shape=mxgraph.azure.active_directory;fillColor=#6C47FF;fontColor=#ffffff;strokeColor=#6C47FF;fontSize=10;fontStyle=1;" vertex="1" parent="ext-group">
+          <mxGeometry x="20" y="115" width="120" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="vercel-svc" value="Vercel&#xa;(hosting + CDN)" style="shape=mxgraph.azure.content_delivery_network;fillColor=#000000;fontColor=#ffffff;strokeColor=#000000;fontSize=10;fontStyle=1;" vertex="1" parent="ext-group">
+          <mxGeometry x="160" y="115" width="120" height="55" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== CI/CD ==================== -->
+        <mxCell id="cicd-group" value="CI/CD Pipeline" style="swimlane;startSize=25;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=14;fontStyle=1;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="80" width="200" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="gh-actions" value="GitHub Actions" style="rounded=1;whiteSpace=wrap;fillColor=#24292E;fontColor=#ffffff;strokeColor=#24292E;fontSize=11;fontStyle=1;" vertex="1" parent="cicd-group">
+          <mxGeometry x="30" y="40" width="140" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="ci-test" value="1. Vitest (32 tests)" style="text;fontSize=10;fontColor=#1565C0;align=left;" vertex="1" parent="cicd-group">
+          <mxGeometry x="30" y="90" width="150" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="ci-migrate" value="2. prisma migrate deploy" style="text;fontSize=10;fontColor=#1565C0;align=left;" vertex="1" parent="cicd-group">
+          <mxGeometry x="30" y="115" width="160" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="ci-deploy" value="3. vercel deploy --prod" style="text;fontSize=10;fontColor=#1565C0;align=left;" vertex="1" parent="cicd-group">
+          <mxGeometry x="30" y="140" width="160" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== TESTING ==================== -->
+        <mxCell id="test-group" value="Testing" style="swimlane;startSize=25;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=14;fontStyle=1;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="330" width="200" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="vitest" value="Vitest 4&#xa;(unit + integration)" style="rounded=1;whiteSpace=wrap;fillColor=#729B1B;fontColor=#ffffff;strokeColor=#729B1B;fontSize=10;fontStyle=1;" vertex="1" parent="test-group">
+          <mxGeometry x="30" y="40" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="msw" value="MSW 2&#xa;(API mocking)" style="rounded=1;whiteSpace=wrap;fillColor=#FF6A33;fontColor=#ffffff;strokeColor=#FF6A33;fontSize=10;fontStyle=1;" vertex="1" parent="test-group">
+          <mxGeometry x="30" y="95" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="playwright" value="Playwright 1.58&#xa;(E2E headless)" style="rounded=1;whiteSpace=wrap;fillColor=#2EAD33;fontColor=#ffffff;strokeColor=#2EAD33;fontSize=10;fontStyle=1;" vertex="1" parent="test-group">
+          <mxGeometry x="30" y="150" width="140" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== CONNECTIONS BETWEEN GROUPS ==================== -->
+        <!-- Client → Vercel APIs -->
+        <mxCell id="e-client-api" value="fetch() / TanStack Query" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#0078D4;fontColor=#0078D4;fontSize=10;labelBackgroundColor=#FFFFFF;" edge="1" source="user-group" target="vercel-group" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Vercel → Azure AI -->
+        <mxCell id="e-api-ai" value="api-key header" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#E65100;fontColor=#E65100;fontSize=10;labelBackgroundColor=#FFFFFF;" edge="1" source="vercel-group" target="azure-ai-group" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Vercel → PostgreSQL -->
+        <mxCell id="e-api-db" value="Prisma / $queryRaw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#2E7D32;fontColor=#2E7D32;fontSize=10;labelBackgroundColor=#FFFFFF;" edge="1" source="vercel-group" target="db-group" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Scraper → PostgreSQL -->
+        <mxCell id="e-scraper-db" value="INSERT ON CONFLICT" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#F9A825;fontColor=#F9A825;fontSize=10;labelBackgroundColor=#FFFFFF;" edge="1" source="scraper-group" target="db-group" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Scraper → Nautichandler -->
+        <mxCell id="e-scraper-nautic" value="HTTP scrape" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#7B1FA2;fontColor=#7B1FA2;fontSize=10;labelBackgroundColor=#FFFFFF;" edge="1" source="scraper-group" target="nautic" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1120" y="720"/>
+              <mxPoint x="1120" y="148"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Vercel APIs → Overpass -->
+        <mxCell id="e-api-overpass" value="marina queries" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=1.5;strokeColor=#7B1FA2;fontColor=#7B1FA2;fontSize=9;dashed=1;labelBackgroundColor=#FFFFFF;" edge="1" source="api-marinas" target="overpass" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="740" y="478"/>
+              <mxPoint x="740" y="148"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- CI/CD → Vercel -->
+        <mxCell id="e-ci-vercel" value="deploy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=1.5;strokeColor=#24292E;fontColor=#24292E;fontSize=9;dashed=1;labelBackgroundColor=#FFFFFF;" edge="1" source="cicd-group" target="vercel-svc" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- CI/CD → DB -->
+        <mxCell id="e-ci-db" value="migrate" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=1.5;strokeColor=#24292E;fontColor=#24292E;fontSize=9;dashed=1;labelBackgroundColor=#FFFFFF;" edge="1" source="cicd-group" target="db-group" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="600"/>
+              <mxPoint x="390" y="600"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

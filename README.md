@@ -1,192 +1,232 @@
 # YachtDrop
 
-Marine parts delivery service — order boat supplies as easily as ordering food.
+Order boat parts as easily as ordering food delivery. A mobile-first online chandlery marketplace where yacht crews order supplies for delivery to their berth or pickup from the marina.
 
-## 🚀 Overview
+**Live:** [yachtdrop.vercel.app](https://yachtdrop.vercel.app)
 
-YachtDrop is a mobile-first e-commerce platform for marine supplies, inspired by Uber Eats' UX patterns. Browse, search, and order boat parts with delivery to your berth.
+## Stack
 
-## ✨ Features
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router), React 19, TypeScript 5 |
+| Styling | TailwindCSS 4, Framer Motion 12, Radix UI, shadcn/ui |
+| State | TanStack Query 5 (server), Zustand 5 (client) |
+| Database | PostgreSQL (Azure) with Prisma 7, pg_trgm + tsvector FTS |
+| AI | Azure AI Services — GPT-4o-mini (chat), Phi-4-mini (search) |
+| Maps | Leaflet + OpenStreetMap Overpass API |
+| Auth | Clerk |
+| Scraper | Python 3, BeautifulSoup, 5 concurrent workers |
+| Testing | Vitest, MSW, Playwright |
+| CI/CD | GitHub Actions → Vercel |
+| Infra | Vercel (app), Azure PostgreSQL (data), Azure AI (inference) |
 
-- **Discovery-first home page** — curated trending products and best offers
-- **Category browsing** with infinite scroll and filters
-- **Real-time search** with instant results
-- **Mobile-optimized UI** following Uber Eats design patterns
-- **Cart management** with delivery/pickup options
-- **Order tracking** with real-time status updates
-- **Marina location services** with overpass API integration
+## Architecture
 
-## 🏗️ Architecture
+Open [`architecture.drawio`](./architecture.drawio) at [app.diagrams.net](https://app.diagrams.net) for the full system diagram with Azure, framework, and library components.
 
-### Frontend (Next.js 13+)
-- **Framework**: Next.js 13 with App Router
-- **Styling**: Tailwind CSS + shadcn/ui components
-- **State**: Zustand (cart, filters, UI)
-- **Animations**: Framer Motion (optimized for performance)
-- **Data fetching**: React Query with caching
-- **TypeScript**: Strict mode throughout
+### Data Flow
 
-### Backend
-- **API**: Next.js API routes
-- **Database**: PostgreSQL with Prisma ORM
-- **Deployment**: Vercel (frontend) + Railway/Heroku (database)
-
-### Data Pipeline
-- **Scraper**: Python (BeautifulSoup + aiohttp) for Nautichandler
-- **Cleaning**: Automated price normalization and deduplication
-- **Sync**: Scheduled runs to keep product data fresh
-
-## 📱 UI/UX Design
-
-### Mobile-First Patterns
-- **Home**: Discovery surface (hero → search → category icons → curated rows)
-- **Browse**: Infinite grid with category filters
-- **Search**: List view with quick-add buttons
-- **Product**: Bottom sheet with image gallery
-- **Cart**: Floating pill bar + drawer with checkout flow
-
-### Key Decisions
-- Horizontal scroll rows for curated content (signals "there's more")
-- Floating + buttons for 1-tap cart adds
-- CSS transforms for tap feedback (GPU-composited, zero JS cost)
-- Memoized components to prevent unnecessary re-renders
-- Lazy loading images below the fold
-
-## 🛠️ Development
-
-### Prerequisites
-```bash
-Node.js 22+
-PostgreSQL 14+
+```
+nautichandler.com ──[Python scraper]──> Azure PostgreSQL
+                                              │
+                    ┌─────────────────────────┤
+                    │                         │
+              Vercel (Next.js)          Azure AI Services
+              ├─ App Router API         ├─ Phi-4-mini (search)
+              ├─ React 19 SSR          └─ GPT-4o-mini (chat)
+              └─ Edge caching
+                    │
+              Mobile browser
+              (PWA-like UX)
 ```
 
-### Setup
-```bash
-# Clone the repository
-git clone https://github.com/HIJOdelIDANII/yachtdrop.git
-cd yachtdrop
+### Search Pipeline
 
-# Frontend setup
+Two paths depending on query complexity:
+
+**Keyword search** — short queries like "anchor rope":
+```
+Input → 300ms debounce → /api/search/combined
+  → tsvector AND query → OR fallback → ILIKE fallback
+  → { products[], marinas[] }
+```
+
+**AI search** — natural language like "what do I need for anchoring?":
+```
+Input → 300ms debounce → /api/search/ai
+  → Phi-4-mini keyword extraction → multi-keyword FTS → dedup
+  → { products[], marinas[], aiContext }
+```
+
+### Chat Pipeline
+
+```
+User message → chitchat regex (skip planner for greetings)
+  → GPT-4o-mini planner → { queries, categories, priceMax }
+  → FTS retrieval → relevance filter (keyword count scoring)
+  → GPT-4o-mini responder (multi-turn history + [PRODUCTS])
+  → { message, products[], marinas[] }
+```
+
+## Project Structure
+
+```
+web/src/
+├── app/
+│   ├── api/
+│   │   ├── search/combined/   Combined product + marina FTS
+│   │   ├── search/ai/         NL → Phi-4-mini → keywords → FTS
+│   │   ├── chat/              Two-model conversational AI
+│   │   ├── bundles/           AI crew essentials bundles
+│   │   ├── marinas/           Marina DB + Overpass fallback (24hr cache)
+│   │   ├── products/          CRUD, /trending, /offers
+│   │   ├── orders/            Order creation (5/min rate limit)
+│   │   └── categories/        Category list with counts
+│   ├── browse/                Catalog with category tabs
+│   ├── search/                Search with filters
+│   ├── chat/                  AI assistant
+│   ├── product/[id]/          Product detail
+│   └── orders/                Order history + tracking
+├── components/
+│   ├── search/                SearchBar, SearchResults, Autosuggest
+│   ├── product/               ProductCard, ProductRow, BundleCard
+│   ├── cart/                  CartBar, CartDrawer, CartItem
+│   ├── checkout/              CheckoutSheet (delivery/pickup, marina)
+│   ├── chat/                  ChatMessage, ChatBubble
+│   ├── category/              CategoryGrid (home), CategoryTabs (browse)
+│   ├── layout/                AppShell, BottomNav, Providers
+│   └── ui/                    shadcn (do not edit manually)
+├── lib/
+│   ├── hooks/                 useCombinedSearch, useFilteredProducts, useBundles
+│   ├── bundles/               Static bundle definitions
+│   ├── ai.ts                  Azure AI client
+│   ├── prisma.ts              Prisma singleton
+│   └── env.ts                 APP_ENV detection
+├── store/                     Zustand: cart, filter, chat, ui
+├── types/index.ts             All TypeScript types
+└── test/                      MSW mocks, fixtures, e2e specs
+
+scraper/
+├── main.py                    Multi-worker orchestration (ThreadPoolExecutor)
+├── product.py                 HTML + JSON-LD parsing, image extraction
+├── sitemap.py                 Sitemap XML category discovery
+├── db.py                      Bulk INSERT ON CONFLICT, soft deletes
+├── clean.py                   Dedup, normalization, image validation
+└── config.py                  Rate limits (3s), retries (3), backoff (2x)
+```
+
+## Database
+
+PostgreSQL with full-text search:
+
+- **tsvector** column with GIN index, maintained by trigger on INSERT/UPDATE
+- **pg_trgm** for fuzzy similarity matching
+- FTS fallback chain: AND query → OR query → ILIKE
+- Bulk writes: `INSERT ... ON CONFLICT DO NOTHING` with UNNEST arrays
+- Soft deletes: products not seen in scrape marked `available=FALSE`
+
+| Table | Purpose |
+|-------|---------|
+| `products` | 2000+ marine parts with prices, images, FTS vectors |
+| `categories` | 40+ categories with slugs and product counts |
+| `marinas` | Cached marina data from OpenStreetMap |
+| `orders` | Order management with status enum |
+| `order_items` | Line items with quantity and unit pricing |
+| `order_events` | Status change timeline |
+| `scraper_runs` | Scraper execution history |
+
+## AI Integration
+
+Azure AI Services (Sweden Central), two-model architecture:
+
+| Model | Deployment | Role |
+|-------|-----------|------|
+| Phi-4-mini | `phi-4-mini` | Keyword extraction from natural language queries |
+| GPT-4o-mini | `gpt-4o-mini` | Chat planner (intent) + conversational responder |
+
+Auth: `api-key` header (not Bearer). Endpoint:
+```
+{AZURE_AI_ENDPOINT}/openai/deployments/{model}/chat/completions?api-version=2024-10-21
+```
+
+## Scraper
+
+Python multi-worker scraper for nautichandler.com:
+
+1. Parse sitemap.xml for category URLs
+2. Distribute categories across 5 concurrent threads
+3. Extract: name, SKU, price, images, brand, weight, stock status
+4. Clean: HTML decode, price normalize, dedup, image validate
+5. Bulk upsert to PostgreSQL with conflict handling
+6. Rate limited: 3s delay, exponential backoff on failure
+
+```bash
+cd scraper
+python main.py        # Full scrape
+python clean.py       # Clean + normalize existing data
+```
+
+## Development
+
+```bash
 cd web
 npm install
-cp .env.example .env.local
-# Fill .env.local with your values
-
-# Database setup
-npx prisma migrate dev
-npx prisma generate
-
-# Start development server
-npm run dev
+npm run dev           # Dev server :3000
+npm run test          # Vitest unit/integration
+npm run test:e2e      # Playwright headless
+npm run migrate:dev   # Migrate local DB
+npm run migrate:prod  # Migrate Azure prod
+npx prisma generate   # Regen client after schema change
 ```
 
-### Environment Variables
-```env
-# Database
-DATABASE_URL="postgresql://..."
+## Environment Variables
 
-# Next.js
-NEXT_PUBLIC_DELIVERY_FEE=5.00
+| Variable | Scope | Description |
+|----------|-------|-------------|
+| `DATABASE_URL` | Server | PostgreSQL connection string |
+| `NEXT_PUBLIC_APP_ENV` | Public | `development` / `preview` / `production` |
+| `NEXT_PUBLIC_APP_URL` | Public | Base URL |
+| `NEXT_PUBLIC_DELIVERY_FEE` | Public | Delivery cost in EUR (default 5.00) |
+| `AZURE_AI_ENDPOINT` | Server | Azure AI Services base URL |
+| `AZURE_AI_API_KEY` | Server | Azure AI API key |
+| `AZURE_AI_DEPLOYMENT` | Server | Phi-4-mini deployment name |
+| `AZURE_AI_CHAT_DEPLOYMENT` | Server | GPT-4o-mini deployment name |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Public | Clerk auth |
+| `CLERK_SECRET_KEY` | Server | Clerk server secret |
 
-# Vercel (for deployment)
-VERCEL_ORG_ID=...
-VERCEL_PROJECT_ID=...
-VERCEL_TOKEN=...
-```
+## CI/CD
 
-### Project Structure
-```
-yachtdrop/
-├── web/                    # Next.js frontend
-│   ├── src/
-│   │   ├── app/           # App Router pages
-│   │   ├── components/    # React components
-│   │   ├── lib/           # Utilities and hooks
-│   │   ├── store/         # Zustand state
-│   │   └── types/         # TypeScript definitions
-│   ├── prisma/            # Database schema
-│   └── public/            # Static assets
-├── scraper/               # Python data pipeline
-└── .github/workflows/     # CI/CD
-```
+GitHub Actions on push to `main`:
 
-## 🧪 Data Pipeline
+1. **Test** — Node 22, Vitest
+2. **Migrate** — `prisma migrate deploy` to Azure PostgreSQL
+3. **Deploy** — Vercel CLI production deploy
 
-The scraper runs automatically to keep product data synchronized with Nautichandler:
+## UX Patterns
 
-```bash
-# Run scraper (from scraper/ directory)
-python main.py
+Modeled after Uber Eats mobile:
 
-# Clean and normalize data
-python clean.py --dry-run  # Preview changes
-python clean.py           # Apply changes
-```
+- Bottom tab navigation (Home, Browse, Search, AI Chat, Orders)
+- Card-based browsing with floating quick-add buttons
+- Horizontal scroll carousels for trending and offers
+- Slide-in drawers for cart and checkout
+- Skeleton loaders during data fetches
+- Glassmorphism hero with search shortcut
+- Dark/light theme toggle
+- Staggered entrance animations (Framer Motion)
 
-### Scraping Strategy
-- **Categories**: Extract from sitemap and navigation
-- **Products**: Parallel scraping with rate limiting
-- **Images**: Download and optimize for URLs
-- **Pricing**: Normalize EUR prices, detect discounts
-- **Stock**: Track availability status
+## Bundles
 
-## 🚀 Deployment
+5 AI crew essentials bundles, auto-populated from inventory:
 
-### Production
-```bash
-# Merge to main branch triggers:
-# 1. Production deployment to Vercel
-# 2. Database migrations
-# 3. scraper data sync
-```
+| Bundle | Keywords |
+|--------|----------|
+| Weekend Cruise Kit | sunscreen, rope, fender, cooler |
+| Safety Essentials | life jacket, fire extinguisher, flare, first aid |
+| Docking Package | dock line, fender, cleat, boat hook |
+| Engine Care | oil, filter, spark plug, fuel, coolant |
+| Deck Maintenance | cleaner, polish, wax, brush, teak |
 
-### CI/CD Pipeline
-- **Push to main**: Deploy production + run migrations
-- **Push to other branches**: No CI (fast for solo development)
-- **Pull requests**: Not used (solo workflow)
+## License
 
-## 📊 Performance Optimizations
-
-### Frontend
-- **Images**: Next.js optimization with lazy loading
-- **Components**: React.memo for expensive renders
-- **Animations**: CSS transforms over JS where possible
-- **Bundle**: Code splitting and dynamic imports
-- **Cache**: React Query with 5min stale time
-
-### Database
-- **Indexes**: Optimized for search queries
-- **Connections**: Pooling for production
-- **Migrations**: Zero-downtime deployment strategy
-
-## 🐛 Known Issues & TODOs
-
-- [ ] Add product comparison feature
-- [ ] Implement saved searches/alerts
-- [ ] Add customer reviews and ratings
-- [ ] Expand to more marine suppliers
-- [ ] Add international shipping options
-
-## 📄 License
-
-MIT License — see LICENSE file for details.
-
-## 🤝 Contributing
-
-Currently a solo project. If you'd like to contribute:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Ensure TypeScript builds and tests pass
-5. Submit a pull request
-
-## 📞 Support
-
-For issues or questions:
-- Create an issue on GitHub
-- Email: support@yachtdrop.com
-
----
-
-Built with ❤️ for the marine community
+Private — Hackathon project for Marine Nanotech.
